@@ -31,14 +31,44 @@ export default function ResultScreen() {
     }
   };
 
-  // Weather Logic: හරියට Comma තියෙනවද බලලා Split කරනවා, නැත්නම් නිකන්ම පෙන්නනවා
   const displayWeather = () => {
     if (!weather) return "Unavailable";
     if (weather.includes(',')) {
-      return weather.split(',')[1]; // උදා: "Clouds, 28°C" -> "28°C"
+      return weather.split(',')[1]; 
     }
-    return weather; // Error එකක් නම් කෙලින්ම පෙන්නනවා
+    return weather; 
   };
+
+  // --- STRONG CALCULATION FIX FOR MOBILE ---
+  const calculateTotal = () => {
+    // 1. If no budget data, return 0
+    if (!plan.budget_breakdown) return "0.00";
+    
+    let total = 0;
+    
+    Object.entries(plan.budget_breakdown).forEach(([key, value]) => {
+      // Skip the existing 'total' key to avoid double counting
+      if (key !== 'total') {
+        // 2. Convert value to String first (safeguard)
+        let stringValue = String(value);
+        
+        // 3. Remove everything except numbers and dots (e.g., "5,000" -> "5000", "LKR 200" -> "200")
+        let cleanString = stringValue.replace(/[^0-9.]/g, '');
+        
+        // 4. Parse to float
+        const amount = parseFloat(cleanString);
+        
+        // 5. Add if it is a valid number
+        if (!isNaN(amount)) {
+          total += amount;
+        }
+      }
+    });
+    
+    // 6. Return formatted total (2 decimal places)
+    return total.toFixed(2);
+  };
+  // -----------------------------------------
 
   return (
     <View style={styles.container}>
@@ -90,14 +120,14 @@ export default function ResultScreen() {
         <View style={styles.budgetCard}>
           <Text style={styles.budgetTitle}>💰 Budget Breakdown</Text>
           
-          {/* Loop through budget items */}
           <View style={styles.breakdownContainer}>
             {plan.budget_breakdown && Object.entries(plan.budget_breakdown).map(([key, value]) => {
-              if (key === 'total') return null; // Total එක වෙනම පෙන්නන නිසා මෙතනින් අයින් කරනවා
+              if (key === 'total') return null;
               return (
                 <View key={key} style={styles.budgetRow}>
                   <Text style={styles.budgetItem}>{key.charAt(0).toUpperCase() + key.slice(1)}</Text>
-                  <Text style={styles.budgetCost}>{value} LKR</Text>
+                  {/* Ensure value is string to prevent errors */}
+                  <Text style={styles.budgetCost}>{String(value)} LKR</Text>
                 </View>
               );
             })}
@@ -106,7 +136,8 @@ export default function ResultScreen() {
           <View style={styles.divider} />
           
           <Text style={styles.budgetLabel}>Total Estimated Cost</Text>
-          <Text style={styles.budgetAmount}>LKR {plan.budget_breakdown?.total}</Text>
+          {/* Using the robust calculation function here */}
+          <Text style={styles.budgetAmount}>LKR {calculateTotal()}</Text>
         </View>
 
       </ScrollView>

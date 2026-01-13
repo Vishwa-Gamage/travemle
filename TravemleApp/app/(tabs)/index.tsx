@@ -53,7 +53,7 @@ export default function HomeScreen() {
     setLoading(true);
     try {
       // ඔයාගේ IP එක මෙතන දැම්මා
-      const response = await axios.post('http://192.168.52.16:8000/api/plan-trip/', {
+      const response = await axios.post('http://192.168.4.172:8000/api/plan-trip/', {
         origin: 'Colombo',
         city: city,
         country: 'Sri Lanka',
