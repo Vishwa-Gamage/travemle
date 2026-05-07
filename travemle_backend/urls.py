@@ -1,24 +1,29 @@
-"""
-URL configuration for travemle_backend project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
-from planner.views import TravelPlanView
+from rest_framework_simplejwt.views import TokenRefreshView
+
+from planner.views import (
+    DestinationListView,
+    LoginView,
+    MeView,
+    RegisterView,
+    TravelPlanView,
+    TripHistoryView,
+)
 
 urlpatterns = [
+    # Admin
     path('admin/', admin.site.urls),
+
+    # Auth endpoints
+    path('api/auth/register/', RegisterView.as_view(), name='register'),
+    path('api/auth/login/', LoginView.as_view(), name='login'),
+    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    path('api/auth/me/', MeView.as_view(), name='me'),
+
+    # Planner endpoints
     path('api/plan-trip/', TravelPlanView.as_view(), name='plan-trip'),
+    path('api/destinations/', DestinationListView.as_view(), name='destinations'),
+    path('api/trip-history/', TripHistoryView.as_view(), name='trip-history'),
+    path('api/trip-history/<int:pk>/', TripHistoryView.as_view(), name='trip-delete'),
 ]
