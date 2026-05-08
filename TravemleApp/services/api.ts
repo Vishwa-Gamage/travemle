@@ -16,10 +16,9 @@
 import axios, { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, ENDPOINTS } from '@/constants/config';
+import { STORAGE_KEYS } from '@/constants/storage';
 
-// ── Storage keys (must match AuthContext) ───────────────────
-const TOKEN_KEY = '@travemle_tokens';
-const USER_KEY  = '@travemle_user';
+// ── Storage keys are now centralized in constants/storage.ts ──────────────
 
 // ── Create base instance ─────────────────────────────────────
 const api = axios.create({
@@ -32,7 +31,7 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     try {
-      const raw = await AsyncStorage.getItem(TOKEN_KEY);
+      const raw = await AsyncStorage.getItem(STORAGE_KEYS.TOKENS);
       if (raw) {
         const tokens = JSON.parse(raw);
         if (tokens?.access) {
@@ -92,7 +91,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const raw = await AsyncStorage.getItem(TOKEN_KEY);
+        const raw = await AsyncStorage.getItem(STORAGE_KEYS.TOKENS);
         if (!raw) throw new Error('No tokens stored');
 
         const tokens = JSON.parse(raw);
@@ -106,7 +105,7 @@ api.interceptors.response.use(
 
         // Persist updated tokens
         const updatedTokens = { access: newAccessToken, refresh: newRefreshToken };
-        await AsyncStorage.setItem(TOKEN_KEY, JSON.stringify(updatedTokens));
+        await AsyncStorage.setItem(STORAGE_KEYS.TOKENS, JSON.stringify(updatedTokens));
 
         // Update default header for future requests
         api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
@@ -123,8 +122,8 @@ api.interceptors.response.use(
 
         // Refresh failed — clear auth state so guard redirects to login
         await Promise.all([
-          AsyncStorage.removeItem(TOKEN_KEY),
-          AsyncStorage.removeItem(USER_KEY),
+          AsyncStorage.removeItem(STORAGE_KEYS.TOKENS),
+          AsyncStorage.removeItem(STORAGE_KEYS.USER),
         ]);
 
         return Promise.reject(refreshError);

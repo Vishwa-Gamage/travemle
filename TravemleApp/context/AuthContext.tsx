@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ENDPOINTS } from '@/constants/config';
+import { STORAGE_KEYS } from '@/constants/storage';
 // Use the centralised axios instance (has auto-refresh interceptor)
 import api from '@/services/api';
 
@@ -42,9 +43,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-// ── Storage keys ──────────────────────────────────────────────────────────
-const TOKEN_KEY = '@travemle_tokens';
-const USER_KEY  = '@travemle_user';
+// ── Storage keys are now centralized in constants/storage.ts ──────────────
 
 // ── Context ───────────────────────────────────────────────────────────────
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -59,8 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const loadAuth = async () => {
       try {
         const [storedTokens, storedUser] = await Promise.all([
-          AsyncStorage.getItem(TOKEN_KEY),
-          AsyncStorage.getItem(USER_KEY),
+          AsyncStorage.getItem(STORAGE_KEYS.TOKENS),
+          AsyncStorage.getItem(STORAGE_KEYS.USER),
         ]);
         if (storedTokens && storedUser) {
           const parsedTokens: AuthTokens = JSON.parse(storedTokens);
@@ -82,8 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(newUser);
     setTokens(newTokens);
     await Promise.all([
-      AsyncStorage.setItem(TOKEN_KEY, JSON.stringify(newTokens)),
-      AsyncStorage.setItem(USER_KEY,  JSON.stringify(newUser)),
+      AsyncStorage.setItem(STORAGE_KEYS.TOKENS, JSON.stringify(newTokens)),
+      AsyncStorage.setItem(STORAGE_KEYS.USER,  JSON.stringify(newUser)),
     ]);
   };
 
@@ -132,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await api.get(ENDPOINTS.me);
       const freshUser: User = res.data;
       setUser(freshUser);
-      await AsyncStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+      await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(freshUser));
     } catch (e) {
       console.error('Failed to refresh user:', e);
     }
@@ -140,12 +139,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Logout ────────────────────────────────────────────────────────────
   const logout = async () => {
-    // Clear local state immediately so the guard redirects to login
+    // Attempt to blacklist the refresh token on the server
+    if (tokens?.refresh) {
+      try {
+        await api.post(ENDPOINTS.logout, { refresh: tokens.refresh });
+      } catch (e) {
+        console.error('Failed to blacklist token on server:', e);
+      }
+    }
+
+    // Clear local state so the guard redirects to login
     setUser(null);
     setTokens(null);
     await Promise.all([
-      AsyncStorage.removeItem(TOKEN_KEY),
-      AsyncStorage.removeItem(USER_KEY),
+      AsyncStorage.removeItem(STORAGE_KEYS.TOKENS),
+      AsyncStorage.removeItem(STORAGE_KEYS.USER),
     ]);
   };
 

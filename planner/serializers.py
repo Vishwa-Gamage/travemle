@@ -33,6 +33,32 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ['default_budget', 'default_travel_mode', 'interests_csv']
 
+
+# QUAL-02: Dedicated serializer for PUT /api/auth/me/ with proper field
+# validation. Previously MeView.put did bare manual extraction which caused
+# unhandled server exceptions on invalid input (e.g. budget="abc").
+class ProfileUpdateSerializer(serializers.Serializer):
+    default_budget = serializers.IntegerField(
+        min_value=0,
+        max_value=10_000_000,
+        error_messages={
+            'min_value': 'Budget cannot be negative.',
+            'max_value': 'Budget value is unrealistically large.',
+            'invalid':   'Budget must be a whole number.',
+        },
+    )
+    default_travel_mode = serializers.ChoiceField(
+        choices=['Car', 'Bus', 'Train'],
+        error_messages={'invalid_choice': 'Travel mode must be Car, Bus, or Train.'},
+    )
+    interests_csv = serializers.CharField(
+        max_length=500,
+        allow_blank=True,
+        required=False,
+        default='',
+    )
+
+
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(read_only=True)
 

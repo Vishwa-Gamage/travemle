@@ -12,6 +12,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Destination, TripPlan
@@ -20,6 +21,7 @@ from .serializers import (
     RegisterSerializer,
     TripPlanSerializer,
     UserSerializer,
+    ProfileUpdateSerializer,
 )
 
 # ── 1. Load environment variables ───────────────────────────────────────────
@@ -185,6 +187,8 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'login'
 
     def post(self, request):
         username = request.data.get("username", "").strip()
@@ -224,22 +228,41 @@ class MeView(APIView):
         return Response(UserSerializer(request.user).data)
 
     def put(self, request):
-        profile = request.user.profile
-        data = request.data
-        if 'default_budget' in data:
-            profile.default_budget = int(data['default_budget'])
-        if 'default_travel_mode' in data:
-            profile.default_travel_mode = data['default_travel_mode']
-        if 'interests_csv' in data:
-            profile.interests_csv = data['interests_csv']
-        profile.save()
-        return Response(UserSerializer(request.user).data)
+        serializer = ProfileUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            profile = request.user.profile
+            data = serializer.validated_data
+            if 'default_budget' in data:
+                profile.default_budget = data['default_budget']
+            if 'default_travel_mode' in data:
+                profile.default_travel_mode = data['default_travel_mode']
+            if 'interests_csv' in data:
+                profile.interests_csv = data['interests_csv']
+            profile.save()
+            return Response(UserSerializer(request.user).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh")
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            return Response({"message": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ── 6. Planner Views ──────────────────────────────────────────────────────────
 
 class TravelPlanView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'plan_trip'
 
     def post(self, request):
         data = request.data
