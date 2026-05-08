@@ -5,10 +5,20 @@ import { ENDPOINTS } from '@/constants/config';
 import api from '@/services/api';
 
 // ── Types ──────────────────────────────────────────────────────────────────
+
+// FIX (BUG-02): Add the full UserProfile type so profile fields are type-safe
+// everywhere (index.tsx, profile.tsx etc.)
+interface UserProfile {
+  default_budget: number;
+  default_travel_mode: string;
+  interests_csv: string;
+}
+
 interface User {
   id: number;
   username: string;
   email: string;
+  profile: UserProfile | null;  // FIX (BUG-02): was missing
 }
 
 interface AuthTokens {
@@ -21,6 +31,12 @@ interface AuthContextType {
   tokens: AuthTokens | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  // FIX (BUG-01): expose setUser so ProfileScreen can update in-memory user
+  // after a successful PUT /api/auth/me/ without needing an extra network round-trip.
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  // refreshUser re-fetches /api/auth/me/ and syncs local state + AsyncStorage.
+  // Use this when you want a guaranteed-fresh copy from the server.
+  refreshUser: () => Promise<void>;
   login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (username: string, email: string, password: string, password2: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
@@ -107,6 +123,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // ── Refresh user from server ─────────────────────────────────────────
+  // FIX (BUG-01): Call this after a profile update to get the latest
+  // server-side user data (including updated profile fields) and persist
+  // it so AsyncStorage stays in sync.
+  const refreshUser = async () => {
+    try {
+      const res = await api.get(ENDPOINTS.me);
+      const freshUser: User = res.data;
+      setUser(freshUser);
+      await AsyncStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+    } catch (e) {
+      console.error('Failed to refresh user:', e);
+    }
+  };
+
   // ── Logout ────────────────────────────────────────────────────────────
   const logout = async () => {
     // Clear local state immediately so the guard redirects to login
@@ -125,6 +156,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tokens,
         isLoading,
         isAuthenticated: !!user && !!tokens,
+        setUser,       // FIX (BUG-01): exposed for direct local state updates
+        refreshUser,   // FIX (BUG-01): exposed for server-synced updates
         login,
         register,
         logout,
