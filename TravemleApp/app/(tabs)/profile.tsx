@@ -3,13 +3,17 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert,
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { ENDPOINTS } from '@/constants/config';
+// FIX (BUG-04): import from shared constant so Plan and Profile screens
+// always have the same list of interests.
+import { INTERESTS } from '@/constants/interests';
 import api from '@/services/api';
 
-const INTERESTS = ['Nature', 'Culture', 'Temple', 'Beach', 'Adventure', 'Food', 'History', 'Wildlife'];
 const TRAVEL_MODES = ['Car', 'Bus', 'Train'] as const;
 
 export default function ProfileScreen() {
-  const { user, setUser, logout } = useAuth();
+  // FIX (BUG-01): replaced broken `setUser` (wasn't exported) with `refreshUser`
+  // which re-fetches /api/auth/me/ so the UI reflects the server's latest values.
+  const { user, refreshUser, logout } = useAuth();
   
   const [budget, setBudget] = useState('20000');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -41,8 +45,10 @@ export default function ProfileScreen() {
         interests_csv: selectedInterests.join(', '),
       };
       
-      const res = await api.put(ENDPOINTS.me, payload);
-      setUser(res.data);
+      await api.put(ENDPOINTS.me, payload);
+      // FIX (BUG-01): refreshUser() fetches the updated user from the server
+      // and persists it, keeping local state and AsyncStorage in sync.
+      await refreshUser();
       Alert.alert('Success', 'Profile updated successfully!');
     } catch (err: any) {
       Alert.alert('Error', 'Failed to update profile.');

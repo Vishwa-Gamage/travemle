@@ -9,10 +9,20 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import { useAuth } from '@/context/AuthContext';
 import { ENDPOINTS } from '@/constants/config';
+// FIX (BUG-04): import from the shared constant — previously this screen only
+// had 6 interests while profile.tsx had 8, so History/Wildlife prefs were lost.
+import { INTERESTS } from '@/constants/interests';
 import api from '@/services/api';
 
-const INTERESTS = ['Nature', 'Culture', 'Temple', 'Beach', 'Adventure', 'Food'];
 const TRAVEL_MODES = ['Car', 'Bus', 'Train'] as const;
+
+// FIX (BUG-05): Parse a YYYY-MM-DD string as LOCAL midnight, not UTC.
+// new Date("2026-06-01") is UTC midnight which shifts to the previous day
+// in any UTC+ timezone (e.g. UTC+5:30 → May 31 18:30:00 local).
+const parseLocalDate = (dateStr: string): Date => {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d); // month is 0-indexed
+};
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -175,7 +185,9 @@ export default function HomeScreen() {
                     type="date"
                     style={{ flex: 1, border: 'none', outline: 'none', fontSize: 15, background: 'transparent' }}
                     value={formatDate(startDate)}
-                    onChange={(e) => handleConfirmStart(new Date(e.target.value))}
+                    // FIX (BUG-05): use parseLocalDate so the selected date
+                    // isn't shifted back one day in UTC+ timezones.
+                    onChange={(e) => handleConfirmStart(parseLocalDate(e.target.value))}
                     min={formatDate(new Date())}
                   />
                 </div>
@@ -195,7 +207,8 @@ export default function HomeScreen() {
                     type="date"
                     style={{ flex: 1, border: 'none', outline: 'none', fontSize: 15, background: 'transparent' }}
                     value={formatDate(endDate)}
-                    onChange={(e) => handleConfirmEnd(new Date(e.target.value))}
+                    // FIX (BUG-05): same parseLocalDate fix for end date picker.
+                    onChange={(e) => handleConfirmEnd(parseLocalDate(e.target.value))}
                     min={formatDate(new Date(startDate.getTime() + 86400000))}
                   />
                 </div>

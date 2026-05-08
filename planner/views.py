@@ -115,7 +115,22 @@ def generate_itinerary(city, country, origin, start_date, end_date, interests, b
     if llm is None:
         return None, "LLM not configured. Check GROQ_API_KEY."
 
-    # Build messages directly — avoids ChatPromptTemplate variable-substitution conflicts
+    # FIX (QUAL-03): build the prompt as a plain string first, then append
+    # the recommendations line conditionally.  The previous ternary expression
+    #   f"..." f"..." if recommended_places else ""
+    # has Python operator-precedence issue: when recommended_places is falsy
+    # the entire HumanMessage content evaluates to "" (empty string), sending
+    # a blank message to the LLM.
+    human_content = (
+        f"Plan a trip to {city}, {country} from {origin}.\n"
+        f"Dates: {start_date} to {end_date}.\n"
+        f"Interests: {interests}. Budget: {budget} LKR. Mode: {mode}."
+    )
+    if recommended_places:
+        human_content += (
+            f"\nConsider prioritizing these locations if relevant: {recommended_places}."
+        )
+
     messages = [
         SystemMessage(content=(
             "You are an expert travel guide. Create a realistic trip plan.\n"
@@ -128,12 +143,7 @@ def generate_itinerary(city, country, origin, start_date, end_date, interests, b
             "'location_name' must be a real place name recognizable by Google Maps.\n"
             "For Sri Lanka: NO TRAINS to Kataragama, Hambantota, or Monaragala."
         )),
-        HumanMessage(content=(
-            f"Plan a trip to {city}, {country} from {origin}.\n"
-            f"Dates: {start_date} to {end_date}.\n"
-            f"Interests: {interests}. Budget: {budget} LKR. Mode: {mode}.\n"
-            f"Consider prioritizing these locations if relevant: {recommended_places}." if recommended_places else ""
-        )),
+        HumanMessage(content=human_content),
     ]
 
     for attempt in range(2):
@@ -334,6 +344,9 @@ class TripHistoryView(APIView):
         try:
             trip = TripPlan.objects.get(pk=pk, user=request.user)
             trip.delete()
-            return Response({"message": "Trip deleted."}, status=status.HTTP_204_NO_CONTENT)
+            # FIX (BUG-03): HTTP 204 No Content must have an empty body.
+            # The previous response included a JSON body which is semantically
+            # invalid for 204 and is silently dropped by many HTTP clients.
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except TripPlan.DoesNotExist:
             return Response({"error": "Trip not found."}, status=status.HTTP_404_NOT_FOUND)
