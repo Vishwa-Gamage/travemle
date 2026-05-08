@@ -22,6 +22,7 @@ export const ENDPOINTS = {
   // Auth
   register:           `${API_BASE_URL}/api/auth/register/`,
   login:              `${API_BASE_URL}/api/auth/login/`,
+  logout:             `${API_BASE_URL}/api/auth/logout/`,
   refresh:            `${API_BASE_URL}/api/auth/refresh/`,
   me:                 `${API_BASE_URL}/api/auth/me/`,
 
