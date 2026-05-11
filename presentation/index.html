@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travemle – Smart Tour Planner | Viva Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#3B82F6;--purple:#8B5CF6;--teal:#06B6D4;--green:#10B981;
+  --orange:#F59E0B;--pink:#EC4899;--red:#EF4444;
+  --dark:#0A0A1A;--card:#12122A;--border:rgba(255,255,255,0.08);
+  --text:#E2E8F0;--muted:#94A3B8;
+}
+body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);overflow:hidden;height:100vh}
+.deck{width:100%;height:100vh;position:relative}
+.slide{position:absolute;inset:0;display:none;padding:48px 64px;flex-direction:column;justify-content:center;animation:fadeIn .4s ease}
+.slide.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+nav{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:100;background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:999px;padding:8px 16px}
+nav button{background:none;border:none;color:var(--muted);cursor:pointer;padding:6px 14px;border-radius:999px;font-size:13px;font-family:'Inter',sans-serif;transition:all .2s}
+nav button.active,nav button:hover{background:var(--blue);color:#fff}
+.slide-counter{position:fixed;top:24px;right:40px;color:var(--muted);font-size:13px;font-weight:500}
+.arrow{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);cursor:pointer;width:44px;height:44px;border-radius:50%;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:100}
+.arrow:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.arrow.left{left:16px}.arrow.right{right:16px}
+
+/* GRAD TEXT */
+.grad{background:linear-gradient(135deg,var(--blue),var(--purple),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.grad-warm{background:linear-gradient(135deg,var(--orange),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px}
+.tag{display:inline-block;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+
+/* ── SLIDE 1 – TITLE ── */
+#s1{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(59,130,246,0.15),transparent),var(--dark);text-align:center;align-items:center;gap:20px}
+#s1 .logo{font-size:72px;font-weight:900;letter-spacing:-3px}
+#s1 .logo span{background:linear-gradient(135deg,#3B82F6,#8B5CF6,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#s1 .subtitle{font-size:22px;color:var(--muted);max-width:600px;line-height:1.6}
+#s1 .meta{display:flex;gap:32px;margin-top:8px}
+#s1 .meta-item{text-align:center}
+#s1 .meta-item .val{font-size:17px;font-weight:700;color:var(--text)}
+#s1 .meta-item .lbl{font-size:12px;color:var(--muted);margin-top:2px}
+#s1 .badge-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+#s1 .badge{padding:6px 16px;border-radius:999px;font-size:13px;font-weight:600;border:1px solid}
+#s1 .b1{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.4);color:#93C5FD}
+#s1 .b2{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.4);color:#C4B5FD}
+#s1 .b3{background:rgba(6,182,212,.15);border-color:rgba(6,182,212,.4);color:#67E8F9}
+#s1 .b4{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:#6EE7B7}
+#s1 .supervisor{font-size:14px;color:var(--muted);margin-top:8px}
+
+/* ── SLIDE 2 – INTRO ── */
+#s2{gap:32px}
+#s2 h2{font-size:42px;font-weight:800;line-height:1.2}
+#s2 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+#s2 .prob-card{padding:24px;border-radius:16px;border:1px solid;position:relative;overflow:hidden}
+#s2 .prob-card::before{content:'';position:absolute;inset:0;opacity:.06}
+#s2 .p1{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25)}
+#s2 .p1 .icon{color:#F87171;font-size:28px}
+#s2 .p2{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25)}
+#s2 .p2 .icon{color:#FCD34D;font-size:28px}
+#s2 .p3{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.25)}
+#s2 .p3 .icon{color:#C4B5FD;font-size:28px}
+#s2 .p4{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.25)}
+#s2 .p4 .icon{color:#93C5FD;font-size:28px}
+#s2 .prob-card h4{font-size:15px;font-weight:700;margin:10px 0 6px}
+#s2 .prob-card p{font-size:13px;color:var(--muted);line-height:1.6}
+#s2 .solution{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.12));border:1px solid rgba(139,92,246,.3);border-radius:16px;padding:20px 28px;display:flex;align-items:center;gap:20px}
+#s2 .solution .sol-text{font-size:15px;line-height:1.7;color:var(--text)}
+#s2 .solution .sol-icon{font-size:40px;flex-shrink:0}
+
+/* ── SLIDE 3 – LITERATURE ── */
+#s3{gap:28px}
+#s3 h2{font-size:42px;font-weight:800}
+#s3 .papers{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#s3 .paper{padding:20px;border-radius:14px;background:var(--card);border:1px solid var(--border)}
+#s3 .paper .ref{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+#s3 .paper h4{font-size:14px;font-weight:700;margin-bottom:6px;line-height:1.4}
+#s3 .paper p{font-size:13px;color:var(--muted);line-height:1.6}
+#s3 .paper .gap{margin-top:10px;font-size:12px;color:#F87171;display:flex;align-items:center;gap:6px}
+#s3 .gap-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:999px;padding:3px 10px;font-size:12px;color:#F87171}
+#s3 .tech-row{display:flex;gap:12px;flex-wrap:wrap}
+#s3 .tech{padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#93C5FD}
+
+/* ── SLIDE 4 – OBJECTIVES ── */
+#s4{gap:28px}
+#s4 h2{font-size:42px;font-weight:800}
+#s4 .obj-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+#s4 .obj{padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--card);position:relative;overflow:hidden}
+#s4 .obj .num{font-size:40px;font-weight:900;position:absolute;top:-4px;right:10px;opacity:.07;color:#fff;line-height:1}
+#s4 .obj .icon{font-size:24px;margin-bottom:10px}
+#s4 .obj h4{font-size:14px;font-weight:700;margin-bottom:6px}
+#s4 .obj p{font-size:12px;color:var(--muted);line-height:1.6}
+#s4 .obj.done::after{content:'✓ Done';position:absolute;bottom:12px;right:12px;font-size:10px;font-weight:700;color:#34D399;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:999px;padding:2px 8px}
+#s4 .obj.partial::after{content:'⚡ Partial';position:absolute;bottom:12px;right:12px;font-size:10px;font-weight:700;color:#FCD34D;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:999px;padding:2px 8px}
+
+/* ── SLIDE 5 – DELIVERABLES ── */
+#s5{gap:28px}
+#s5 h2{font-size:42px;font-weight:800}
+#s5 .del-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#s5 .del{padding:22px;border-radius:14px;background:var(--card);border:1px solid var(--border)}
+#s5 .del .icon{font-size:28px;margin-bottom:12px}
+#s5 .del h4{font-size:15px;font-weight:700;margin-bottom:8px}
+#s5 .del ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+#s5 .del ul li{font-size:13px;color:var(--muted);display:flex;align-items:flex-start;gap:8px}
+#s5 .del ul li::before{content:'→';color:var(--blue);font-weight:700;flex-shrink:0}
+#s5 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+#s5 .stat{text-align:center;padding:16px;border-radius:12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2)}
+#s5 .stat .val{font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+#s5 .stat .lbl{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ── SLIDE 6 – BLOCK DIAGRAM ── */
+#s6{gap:20px}
+#s6 h2{font-size:42px;font-weight:800}
+#s6 .arch{display:flex;flex-direction:column;align-items:center;gap:0;width:100%}
+#s6 .tier{display:flex;gap:12px;align-items:center;width:100%}
+#s6 .tier-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;width:90px;text-align:right;flex-shrink:0}
+#s6 .boxes{display:flex;gap:10px;flex:1}
+#s6 .box{flex:1;padding:14px;border-radius:12px;text-align:center;font-size:13px;font-weight:600}
+#s6 .box small{display:block;font-size:10px;font-weight:400;opacity:.7;margin-top:4px}
+#s6 .arrow-down{color:var(--muted);font-size:20px;line-height:1;text-align:center;width:100%;margin:4px 0}
+#s6 .t-frontend .box{background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.35);color:#C4B5FD}
+#s6 .t-api .box{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.35);color:#93C5FD}
+#s6 .t-backend .box{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#6EE7B7}
+#s6 .t-ai .box{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#FCD34D}
+#s6 .t-external .box{background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.35);color:#67E8F9}
+#s6 .t-db .box{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#FCA5A5}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- SLIDE 1: TITLE -->
+<div class="slide active" id="s1">
+  <div class="logo"><span>TRAVEMLE</span></div>
+  <div class="subtitle">Personalised Smart Tour Planner<br>powered by AI & Real-Time Data</div>
+  <div class="badge-row">
+    <span class="badge b1">🤖 LLaMA-3.3 70B</span>
+    <span class="badge b2">📱 Expo React Native</span>
+    <span class="badge b3">☁️ Django REST API</span>
+    <span class="badge b4">🌦 Real-Time Weather</span>
+  </div>
+  <div class="meta">
+    <div class="meta-item"><div class="val">22ug1-0582</div><div class="lbl">T.V. Gamage</div></div>
+    <div class="meta-item"><div class="val">22ug1-0452</div><div class="lbl">G.R. Mihiran</div></div>
+  </div>
+  <div class="supervisor">Supervisor: Dr. Mohamed Azmeer &nbsp;|&nbsp; Co-supervisor: Ms. Warunika Hippola</div>
+</div>
+
+<!-- SLIDE 2: INTRODUCTION -->
+<div class="slide" id="s2">
+  <h2>Introduction &amp; <span class="grad">Problem Statement</span></h2>
+  <div class="grid">
+    <div class="prob-card p1"><div class="icon">🗂️</div><h4>Fragmented Platforms</h4><p>Travellers must use multiple apps — booking, maps, reviews — leading to disjointed itineraries.</p></div>
+    <div class="prob-card p2"><div class="icon">⏳</div><h4>Time-Consuming Planning</h4><p>Manual research across TripAdvisor, Google Travel, etc. is inefficient and overwhelming.</p></div>
+    <div class="prob-card p3"><div class="icon">🎯</div><h4>Lack of Personalisation</h4><p>Existing platforms give generic suggestions, not tailored to individual budgets or interests.</p></div>
+    <div class="prob-card p4"><div class="icon">⚡</div><h4>No Real-Time Adaptation</h4><p>Current tools cannot dynamically adjust plans for weather changes or local conditions.</p></div>
+  </div>
+  <div class="solution">
+    <div class="sol-icon">✈️</div>
+    <div class="sol-text"><strong>TRAVEMLE</strong> solves these by combining <strong>AI-powered itinerary generation</strong>, <strong>user preference learning</strong>, and <strong>real-time weather integration</strong> into a single seamless mobile application.</div>
+  </div>
+</div>
+
+<!-- SLIDE 3: LITERATURE SURVEY -->
+<div class="slide" id="s3">
+  <h2>Background &amp; <span class="grad">Literature Survey</span></h2>
+  <div class="papers">
+    <div class="paper">
+      <div class="ref">[1] Anitha et al. — 2025</div>
+      <h4>AI Powered Trip Planner</h4>
+      <p>AI planner using preferences, travel history &amp; financial constraints with real-time data adaptation.</p>
+      <div class="gap"><span class="gap-badge">⚠ Gap: limited historical feedback loop</span></div>
+    </div>
+    <div class="paper">
+      <div class="ref">[2] Varghese et al. — 2024</div>
+      <h4>Smart Travel Planning Using ML</h4>
+      <p>Web-scraped data + ML for budget-aware itineraries across 600+ destinations.</p>
+      <div class="gap"><span class="gap-badge">⚠ Gap: no real-time condition handling</span></div>
+    </div>
+    <div class="paper">
+      <div class="ref">[3] Zhang & Chen — 2021</div>
+      <h4>Tourism Route Planning (IEEE)</h4>
+      <p>Comprehensive attractiveness scoring for route optimisation using neural systems.</p>
+      <div class="gap"><span class="gap-badge">⚠ Gap: no user preference personalisation</span></div>
+    </div>
+    <div class="paper">
+      <div class="ref">[4] Tenemaza et al. — 2021</div>
+      <h4>Optimised Travel via Metaheuristics</h4>
+      <p>Genetic &amp; metaheuristic algorithms for multi-constraint travel optimisation (IEEE Access).</p>
+      <div class="gap"><span class="gap-badge">⚠ Gap: no live data integration</span></div>
+    </div>
+  </div>
+  <div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:10px">Common techniques identified:</p>
+    <div class="tech-row">
+      <span class="tech">Collaborative Filtering</span>
+      <span class="tech">Content-Based Filtering</span>
+      <span class="tech">Hybrid Models</span>
+      <span class="tech">Dijkstra / A* Routing</span>
+      <span class="tech">Genetic Algorithms</span>
+      <span class="tech">Context-Aware AI</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: OBJECTIVES -->
+<div class="slide" id="s4">
+  <h2>Project <span class="grad">Objectives</span></h2>
+  <div class="obj-grid">
+    <div class="obj done">
+      <div class="num">1</div>
+      <div class="icon">👤</div>
+      <h4>User Profile &amp; Preferences</h4>
+      <p>Build detailed user profiles capturing budget, trip length, interests, and travel mode.</p>
+    </div>
+    <div class="obj partial">
+      <div class="num">2</div>
+      <div class="icon">🤖</div>
+      <h4>ML Recommendation Models</h4>
+      <p>Suggest destinations, stays &amp; activities based on user preferences and history.</p>
+    </div>
+    <div class="obj partial">
+      <div class="num">3</div>
+      <div class="icon">🗺️</div>
+      <h4>Itinerary Optimisation</h4>
+      <p>Maximise satisfaction while minimising travel cost and time using constraints.</p>
+    </div>
+    <div class="obj done">
+      <div class="num">4</div>
+      <div class="icon">💻</div>
+      <h4>Full-Stack Application</h4>
+      <p>Django REST backend + Expo React Native mobile frontend with JWT auth.</p>
+    </div>
+    <div class="obj done">
+      <div class="num">5</div>
+      <div class="icon">🌦️</div>
+      <h4>Real-Time Data Integration</h4>
+      <p>Incorporate live weather, traffic-aware maps for dynamic itinerary adjustments.</p>
+    </div>
+    <div class="obj partial">
+      <div class="num">6</div>
+      <div class="icon">🧪</div>
+      <h4>Testing &amp; Evaluation</h4>
+      <p>Unit, integration, and user testing to validate usability and performance.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: DELIVERABLES -->
+<div class="slide" id="s5">
+  <h2>Project <span class="grad">Deliverables</span></h2>
+  <div class="stats">
+    <div class="stat"><div class="val">8</div><div class="lbl">REST API Endpoints</div></div>
+    <div class="stat"><div class="val">7</div><div class="lbl">App Screens</div></div>
+    <div class="stat"><div class="val">3</div><div class="lbl">Data Models</div></div>
+    <div class="stat"><div class="val">70B</div><div class="lbl">LLM Parameters</div></div>
+  </div>
+  <div class="del-grid">
+    <div class="del">
+      <div class="icon">📱</div>
+      <h4>Mobile Application (Expo React Native)</h4>
+      <ul>
+        <li>Register / Login with JWT authentication</li>
+        <li>AI Trip Planner with budget &amp; date inputs</li>
+        <li>Destination Explorer with category filters</li>
+        <li>Trip History with delete support</li>
+        <li>User Profile management screen</li>
+      </ul>
+    </div>
+    <div class="del">
+      <div class="icon">⚙️</div>
+      <h4>Django REST Backend</h4>
+      <ul>
+        <li>JWT auth with token blacklisting on logout</li>
+        <li>LLM-powered itinerary generation (Groq)</li>
+        <li>OpenWeather API real-time forecast</li>
+        <li>Rate limiting: login 5/min, plan 10/hr</li>
+        <li>Google Maps multi-waypoint URL export</li>
+      </ul>
+    </div>
+    <div class="del">
+      <div class="icon">🧠</div>
+      <h4>AI / Intelligence Layer</h4>
+      <ul>
+        <li>LangChain + LLaMA-3.3-70B via Groq API</li>
+        <li>Structured JSON output with budget breakdown</li>
+        <li>Interest-based destination pre-filtering</li>
+        <li>Transport constraint enforcement</li>
+      </ul>
+    </div>
+    <div class="del">
+      <div class="icon">🔒</div>
+      <h4>Security &amp; Infrastructure</h4>
+      <ul>
+        <li>Environment-variable driven configuration</li>
+        <li>Automatic JWT refresh on 401 (silent re-auth)</li>
+        <li>Input validation on all API endpoints</li>
+        <li>CORS configuration, no secrets in source</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: BLOCK DIAGRAM -->
+<div class="slide" id="s6">
+  <h2>Project <span class="grad">Block Diagram</span></h2>
+  <div class="arch">
+    <div class="tier t-frontend">
+      <div class="tier-label">Frontend</div>
+      <div class="boxes">
+        <div class="box">Login / Register<small>Auth Flow</small></div>
+        <div class="box">Trip Planner<small>Home Screen</small></div>
+        <div class="box">Explore<small>Destinations</small></div>
+        <div class="box">History<small>Past Trips</small></div>
+        <div class="box">Profile<small>Preferences</small></div>
+      </div>
+    </div>
+    <div class="arrow-down">↕ JWT-secured REST API (Axios + Auto-Refresh)</div>
+    <div class="tier t-api">
+      <div class="tier-label">API Layer</div>
+      <div class="boxes">
+        <div class="box">/auth/register<br>/auth/login<br>/auth/logout<small>Auth Endpoints</small></div>
+        <div class="box">/api/me/<small>Profile CRUD</small></div>
+        <div class="box">/api/plan/<small>Generate Trip</small></div>
+        <div class="box">/api/history/<small>Trip Records</small></div>
+        <div class="box">/api/destinations/<small>Explore Data</small></div>
+      </div>
+    </div>
+    <div class="arrow-down">↕</div>
+    <div class="tier t-backend">
+      <div class="tier-label">Backend</div>
+      <div class="boxes">
+        <div class="box">Django 5.0 + DRF<small>Core Framework</small></div>
+        <div class="box">JWT Auth<small>SimpleJWT + Blacklist</small></div>
+        <div class="box">Rate Throttling<small>ScopedRateThrottle</small></div>
+        <div class="box">Input Validation<small>Serializers</small></div>
+      </div>
+    </div>
+    <div class="arrow-down">↕</div>
+    <div class="tier t-ai" style="display:flex;gap:12px">
+      <div class="tier-label">AI / External</div>
+      <div class="boxes">
+        <div class="box">LangChain + Groq<small>LLaMA-3.3-70B · Itinerary Gen</small></div>
+        <div class="box">OpenWeather API<small>Real-Time Forecast</small></div>
+        <div class="box">Google Maps<small>Route URL Builder</small></div>
+        <div class="box">SQLite → PostgreSQL<small>Data Persistence</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- SLIDE 7: METHODOLOGY -->
+<div class="slide" id="s7">
+  <style>
+    #s7{gap:24px}
+    #s7 h2{font-size:42px;font-weight:800}
+    #s7 .phases{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:start}
+    #s7 .phase{border-radius:14px;padding:18px;border:1px solid var(--border);background:var(--card);position:relative}
+    #s7 .phase .num{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+    #s7 .phase h4{font-size:14px;font-weight:700;margin-bottom:8px}
+    #s7 .phase ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+    #s7 .phase ul li{font-size:12px;color:var(--muted);padding-left:12px;position:relative}
+    #s7 .phase ul li::before{content:'•';position:absolute;left:0;color:var(--blue)}
+    #s7 .ph1 .num{color:#8B5CF6} #s7 .ph2 .num{color:#3B82F6}
+    #s7 .ph3 .num{color:#10B981} #s7 .ph4 .num{color:#F59E0B} #s7 .ph5 .num{color:#06B6D4}
+    #s7 .ph1{border-color:rgba(139,92,246,.3)} #s7 .ph2{border-color:rgba(59,130,246,.3)}
+    #s7 .ph3{border-color:rgba(16,185,129,.3)} #s7 .ph4{border-color:rgba(245,158,11,.3)} #s7 .ph5{border-color:rgba(6,182,212,.3)}
+    #s7 .flow{display:flex;align-items:center;gap:8px;margin-top:4px}
+    #s7 .flow-box{padding:10px 16px;border-radius:10px;font-size:12px;font-weight:600;text-align:center;flex:1}
+    #s7 .flow-arr{color:var(--muted);font-size:16px;flex-shrink:0}
+    #s7 .stack-row{display:flex;gap:10px;flex-wrap:wrap}
+    #s7 .stk{padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#93C5FD}
+  </style>
+  <h2>Proposed <span class="grad">Methodology</span></h2>
+  <div class="phases">
+    <div class="phase ph1">
+      <div class="num">Phase 1</div>
+      <h4>Requirement Analysis</h4>
+      <ul><li>User stories &amp; needs</li><li>API research</li><li>Data collection plan</li><li>Problem finalisation</li></ul>
+    </div>
+    <div class="phase ph2">
+      <div class="num">Phase 2</div>
+      <h4>System Design</h4>
+      <ul><li>DB schema (ERD)</li><li>API contracts</li><li>Architecture diagram</li><li>UI wireframes</li></ul>
+    </div>
+    <div class="phase ph3">
+      <div class="num">Phase 3</div>
+      <h4>Implementation</h4>
+      <ul><li>Django backend</li><li>Expo frontend</li><li>LLM integration</li><li>JWT auth flow</li></ul>
+    </div>
+    <div class="phase ph4">
+      <div class="num">Phase 4</div>
+      <h4>Testing</h4>
+      <ul><li>Unit tests</li><li>Integration tests</li><li>User acceptance</li><li>Bug fixes</li></ul>
+    </div>
+    <div class="phase ph5">
+      <div class="num">Phase 5</div>
+      <h4>Deployment</h4>
+      <ul><li>Render (backend)</li><li>EAS build (app)</li><li>PostgreSQL migration</li><li>Monitoring</li></ul>
+    </div>
+  </div>
+  <div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">AI Itinerary Generation Flow:</p>
+    <div class="flow">
+      <div class="flow-box" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);color:#C4B5FD">User Inputs<br><small style="opacity:.7">city, dates, budget</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#93C5FD">Profile Merge<br><small style="opacity:.7">interests, mode</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#6EE7B7">DB Pre-filter<br><small style="opacity:.7">category match</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#FCD34D">LLM Prompt<br><small style="opacity:.7">LLaMA-3.3-70B</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);color:#67E8F9">JSON Plan<br><small style="opacity:.7">+ weather + maps</small></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#FCA5A5">Save to DB<br><small style="opacity:.7">TripPlan model</small></div>
+    </div>
+  </div>
+  <div class="stack-row">
+    <span class="stk">Django 5.0</span><span class="stk">DRF 3.16</span><span class="stk">LangChain</span>
+    <span class="stk">Groq API</span><span class="stk">Expo SDK 51</span><span class="stk">TypeScript</span>
+    <span class="stk">SimpleJWT</span><span class="stk">OpenWeather</span><span class="stk">SQLite→PostgreSQL</span>
+  </div>
+</div>
+
+<!-- SLIDE 8: RESULTS / CONTRIBUTIONS -->
+<div class="slide" id="s8">
+  <style>
+    #s8{gap:24px}
+    #s8 h2{font-size:42px;font-weight:800}
+    #s8 .contrib-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    #s8 .person{padding:24px;border-radius:16px;background:var(--card);border:1px solid var(--border)}
+    #s8 .person .name{font-size:16px;font-weight:700;margin-bottom:4px}
+    #s8 .person .id{font-size:12px;color:var(--muted);margin-bottom:14px}
+    #s8 .person ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+    #s8 .person ul li{font-size:13px;color:var(--muted);display:flex;gap:10px;align-items:flex-start}
+    #s8 .person ul li .ic{flex-shrink:0;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+    #s8 .v .ic{background:rgba(139,92,246,.2);} #s8 .m .ic{background:rgba(59,130,246,.2);}
+    #s8 .person .progress{margin-top:14px;background:rgba(255,255,255,.06);border-radius:999px;height:6px;overflow:hidden}
+    #s8 .person .bar{height:100%;border-radius:999px}
+    #s8 .v .bar{background:linear-gradient(90deg,#8B5CF6,#3B82F6);width:80%}
+    #s8 .m .bar{background:linear-gradient(90deg,#3B82F6,#06B6D4);width:80%}
+    #s8 .results{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    #s8 .res-card{padding:16px;border-radius:12px;border:1px solid var(--border);background:var(--card);text-align:center}
+    #s8 .res-card .ic{font-size:24px;margin-bottom:8px}
+    #s8 .res-card h4{font-size:13px;font-weight:700;margin-bottom:4px}
+    #s8 .res-card p{font-size:12px;color:var(--muted);line-height:1.5}
+  </style>
+  <h2>Completion &amp; <span class="grad">Individual Contributions</span></h2>
+  <div class="contrib-grid">
+    <div class="person v">
+      <div class="name">T.V. Gamage</div>
+      <div class="id">22ug1-0582 — Software Architect &amp; ML Lead</div>
+      <ul>
+        <li><span class="ic">🔧</span>Django backend architecture, models, serializers</li>
+        <li><span class="ic">🤖</span>LangChain + Groq LLM integration &amp; prompt engineering</li>
+        <li><span class="ic">🔒</span>JWT auth, rate throttling, token blacklisting</li>
+        <li><span class="ic">⚙️</span>Itinerary optimisation engine &amp; DB pre-filter</li>
+        <li><span class="ic">🌦</span>OpenWeather API &amp; Google Maps URL builder</li>
+      </ul>
+      <div class="progress"><div class="bar"></div></div>
+    </div>
+    <div class="person m">
+      <div class="name">G.R. Mihiran</div>
+      <div class="id">22ug1-0452 — Frontend &amp; Documentation Lead</div>
+      <ul>
+        <li><span class="ic">📱</span>Expo React Native app — all 7 screens</li>
+        <li><span class="ic">🔗</span>Axios API service with JWT auto-refresh interceptors</li>
+        <li><span class="ic">🎨</span>UI/UX design, animations, responsive layouts</li>
+        <li><span class="ic">📝</span>Literature review, final report compilation</li>
+        <li><span class="ic">🧪</span>System testing &amp; user acceptance evaluation</li>
+      </ul>
+      <div class="progress"><div class="bar"></div></div>
+    </div>
+  </div>
+  <div class="results">
+    <div class="res-card"><div class="ic">✅</div><h4>Auth System</h4><p>Register, Login, Logout with silent JWT refresh on expiry</p></div>
+    <div class="res-card"><div class="ic">🗺️</div><h4>AI Itineraries</h4><p>Structured day-by-day plans with budget breakdown &amp; map export</p></div>
+    <div class="res-card"><div class="ic">🌤️</div><h4>Live Weather</h4><p>OpenWeather 5-day forecast injected into every trip plan</p></div>
+  </div>
+</div>
+
+<!-- SLIDE 9: FUTURE DEVELOPMENTS -->
+<div class="slide" id="s9">
+  <style>
+    #s9{gap:28px}
+    #s9 h2{font-size:42px;font-weight:800}
+    #s9 .future-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    #s9 .fut{padding:22px;border-radius:14px;background:var(--card);border:1px solid var(--border)}
+    #s9 .fut .badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;margin-bottom:12px;display:inline-block}
+    #s9 .fut .badge.hi{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#F87171}
+    #s9 .fut .badge.med{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#FCD34D}
+    #s9 .fut .badge.lo{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#6EE7B7}
+    #s9 .fut .icon{font-size:26px;margin-bottom:10px}
+    #s9 .fut h4{font-size:14px;font-weight:700;margin-bottom:8px}
+    #s9 .fut p{font-size:12px;color:var(--muted);line-height:1.6}
+    #s9 .note{background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(139,92,246,.1));border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:16px 22px;font-size:14px;color:var(--text);line-height:1.7}
+  </style>
+  <h2>Future <span class="grad">Developments</span></h2>
+  <div class="future-grid">
+    <div class="fut">
+      <div class="badge hi">HIGH PRIORITY</div>
+      <div class="icon">🗄️</div>
+      <h4>PostgreSQL Migration</h4>
+      <p>Migrate from SQLite to PostgreSQL for production scalability, concurrent users &amp; cloud deployment on Render.</p>
+    </div>
+    <div class="fut">
+      <div class="badge hi">HIGH PRIORITY</div>
+      <div class="icon">🧪</div>
+      <h4>Formal Test Suite</h4>
+      <p>Implement pytest-django unit &amp; integration tests covering all API endpoints and edge cases.</p>
+    </div>
+    <div class="fut">
+      <div class="badge med">MEDIUM</div>
+      <div class="icon">🔁</div>
+      <h4>Feedback Learning Loop</h4>
+      <p>Use historical trip data to train collaborative filtering models that improve recommendations over time.</p>
+    </div>
+    <div class="fut">
+      <div class="badge med">MEDIUM</div>
+      <div class="icon">📅</div>
+      <h4>Live Events Integration</h4>
+      <p>Integrate local events APIs (Ticketmaster, Eventbrite) for activity suggestions based on travel dates.</p>
+    </div>
+    <div class="fut">
+      <div class="badge med">MEDIUM</div>
+      <div class="icon">🚦</div>
+      <h4>Real-Time Traffic</h4>
+      <p>Add Google Maps Traffic API to dynamically adjust itinerary timing based on live road conditions.</p>
+    </div>
+    <div class="fut">
+      <div class="badge lo">LOW</div>
+      <div class="icon">🤝</div>
+      <h4>Group Trip Planning</h4>
+      <p>Allow multiple users to collaboratively plan and share itineraries with preference conflict resolution.</p>
+    </div>
+  </div>
+  <div class="note">
+    🎯 <strong>Immediate next steps:</strong> Deploy backend to Render → Run Expo EAS production build → Populate Destination database with 50+ Sri Lankan locations → Write formal test suite for Objective 6 completion.
+  </div>
+</div>
+
+<!-- SLIDE 10: TIMELINE + REFERENCES -->
+<div class="slide" id="s10">
+  <style>
+    #s10{gap:20px}
+    #s10 h2{font-size:42px;font-weight:800}
+    #s10 .two-col{display:grid;grid-template-columns:1.3fr 1fr;gap:24px;align-items:start}
+    #s10 .timeline{display:flex;flex-direction:column;gap:0}
+    #s10 .trow{display:flex;gap:0;align-items:stretch}
+    #s10 .trow .week{width:110px;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;padding:10px 12px 10px 0;text-align:right;border-right:2px solid var(--border);line-height:1.4}
+    #s10 .trow .task{padding:10px 0 10px 16px;font-size:13px;color:var(--text);line-height:1.5;position:relative}
+    #s10 .trow .task::before{content:'';width:10px;height:10px;border-radius:50%;position:absolute;left:-6px;top:14px;border:2px solid}
+    #s10 .w1 .task::before{border-color:#8B5CF6;background:#8B5CF6}
+    #s10 .w2 .task::before{border-color:#3B82F6;background:#3B82F6}
+    #s10 .w3 .task::before{border-color:#10B981;background:#10B981}
+    #s10 .w4 .task::before{border-color:#F59E0B;background:#F59E0B}
+    #s10 .w5 .task::before{border-color:#06B6D4;background:#06B6D4}
+    #s10 .w6 .task::before{border-color:#EF4444;background:#EF4444}
+    #s10 .w7 .task::before{border-color:#EC4899;background:#EC4899}
+    #s10 .refs{display:flex;flex-direction:column;gap:10px}
+    #s10 .ref{padding:14px;border-radius:12px;background:var(--card);border:1px solid var(--border)}
+    #s10 .ref .rnum{font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px}
+    #s10 .ref p{font-size:11px;color:var(--muted);line-height:1.5}
+    #s10 .done-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:999px;padding:4px 14px;font-size:12px;font-weight:700;color:#6EE7B7}
+  </style>
+  <h2>Timeline &amp; <span class="grad">References</span></h2>
+  <div class="two-col">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <p style="font-size:13px;color:var(--muted)">15-Week Project Timeline</p>
+        <span class="done-badge">✓ Week 1–10 Complete</span>
+      </div>
+      <div class="timeline">
+        <div class="trow w1"><div class="week">Week 1–2</div><div class="task">Requirement Analysis, Problem Finalisation</div></div>
+        <div class="trow w2"><div class="week">Week 3–4</div><div class="task">System Design, Architecture &amp; DB Schema Planning</div></div>
+        <div class="trow w3"><div class="week">Week 5–7</div><div class="task">ML Model Development — Recommendation + LLM Integration</div></div>
+        <div class="trow w4"><div class="week">Week 8–10</div><div class="task">Frontend (Expo) &amp; Backend (Django) Full Implementation</div></div>
+        <div class="trow w5"><div class="week">Week 11</div><div class="task">Real-Time Data Integration (Weather, Maps), Testing Begins</div></div>
+        <div class="trow w6"><div class="week">Week 12–13</div><div class="task">System Testing, Evaluation &amp; Bug Fixes</div></div>
+        <div class="trow w7"><div class="week">Week 14–15</div><div class="task">Final Deployment (Render/EAS) &amp; Report Writing</div></div>
+      </div>
+    </div>
+    <div class="refs">
+      <div class="ref"><div class="rnum">[1] Anitha et al. — IJSRT, 2025</div><p>AI Powered Trip Planner — preferences, travel history &amp; financial constraints with real-time adaptation.</p></div>
+      <div class="ref"><div class="rnum">[2] Varghese et al. — IRPR, 2024</div><p>Smart Travel Planning Using ML — web-scraped data &amp; budget-aware itineraries for 600+ destinations.</p></div>
+      <div class="ref"><div class="rnum">[3] Zhang &amp; Chen — IEEE TNSRE, 2021</div><p>Tourism Route Planning via Comprehensive Attractiveness scoring using neural systems.</p></div>
+      <div class="ref"><div class="rnum">[4] Tenemaza et al. — IEEE Access, 2021</div><p>Optimised Travel Recommendations Through Metaheuristic Algorithms for multi-constraint planning.</p></div>
+      <div style="margin-top:10px;padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(139,92,246,.1));border:1px solid rgba(139,92,246,.25);font-size:13px;color:var(--text);text-align:center">
+        🙏 <strong>Thank You</strong> — Questions Welcome!<br>
+        <span style="font-size:12px;color:var(--muted)">Supervisor: Dr. Mohamed Azmeer &nbsp;|&nbsp; Co-supervisor: Ms. Warunika Hippola</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<button class="arrow left" onclick="move(-1)">‹</button>
+<button class="arrow right" onclick="move(1)">›</button>
+<div class="slide-counter" id="counter">1 / 10</div>
+<nav id="nav"></nav>
+
+<script>
+const labels=['Title','Introduction','Literature','Objectives','Deliverables','Block Diagram','Methodology','Results','Future Work','Timeline'];
+const slides=document.querySelectorAll('.slide');
+const nav=document.getElementById('nav');
+let cur=0;
+labels.forEach((l,i)=>{
+  const b=document.createElement('button');
+  b.textContent=l;if(i===0)b.classList.add('active');
+  b.onclick=()=>go(i);nav.appendChild(b);
+});
+function go(n){
+  slides[cur].classList.remove('active');
+  nav.children[cur].classList.remove('active');
+  cur=Math.max(0,Math.min(n,slides.length-1));
+  slides[cur].classList.add('active');
+  nav.children[cur].classList.add('active');
+  document.getElementById('counter').textContent=`${cur+1} / ${slides.length}`;
+}
+function move(d){go(cur+d);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')move(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')move(-1);
+});
+</script>
+</body>
+</html>

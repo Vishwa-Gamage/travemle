@@ -10,6 +10,7 @@ from planner.views import (
     RegisterView,
     TravelPlanView,
     TripHistoryView,
+    ChatbotView,
 )
 
 urlpatterns = [
@@ -28,4 +29,5 @@ urlpatterns = [
     path('api/destinations/', DestinationListView.as_view(), name='destinations'),
     path('api/trip-history/', TripHistoryView.as_view(), name='trip-history'),
     path('api/trip-history/<int:pk>/', TripHistoryView.as_view(), name='trip-delete'),
+    path('api/chat/', ChatbotView.as_view(), name='chatbot'),
 ]

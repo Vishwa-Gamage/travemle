@@ -373,3 +373,42 @@ class TripHistoryView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except TripPlan.DoesNotExist:
             return Response({"error": "Trip not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class ChatbotView(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'plan_trip'
+
+    def post(self, request):
+        if llm is None:
+            return Response({"error": "LLM not configured. Check GROQ_API_KEY."}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+        user_message = request.data.get("message", "").strip()
+        context_plan = request.data.get("context_plan", None)
+        
+        if not user_message:
+            return Response({"error": "Message is required."}, status=400)
+            
+        system_content = (
+            "You are Travemle's AI Travel Assistant. "
+            "You help users with their travel queries, provide recommendations, "
+            "and explain travel itineraries. Keep your responses friendly, concise, "
+            "and helpful. "
+            "CRITICAL: Format your response in pure plain text ONLY. DO NOT use any markdown formatting "
+            "like **bold**, *italics*, or # headers, because the mobile app cannot render them."
+        )
+        
+        if context_plan:
+            system_content += f"\n\nThe user is currently looking at this trip plan: {json.dumps(context_plan)}"
+            
+        messages = [
+            SystemMessage(content=system_content),
+            HumanMessage(content=user_message),
+        ]
+        
+        try:
+            response = llm.invoke(messages)
+            return Response({"reply": response.content}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Chatbot error: {e}")
+            return Response({"error": "Sorry, I am having trouble connecting right now."}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

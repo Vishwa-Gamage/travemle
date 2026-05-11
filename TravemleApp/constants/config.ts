@@ -33,4 +33,7 @@ export const ENDPOINTS = {
   // Trip history — list/create and detail (for delete)
   tripHistory:        `${API_BASE_URL}/api/trip-history/`,
   tripHistoryDetail:  (id: number) => `${API_BASE_URL}/api/trip-history/${id}/`,
+  
+  // Chatbot
+  chat:               `${API_BASE_URL}/api/chat/`,
 };

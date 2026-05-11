@@ -102,19 +102,26 @@ export default function ResultScreen() {
               <Text style={styles.duration}>{plan.duration}</Text>
             </View>
           </View>
-          <View style={styles.weatherBadge}>
-            <Ionicons name="partly-sunny" size={26} color="#FFD700" />
-            <Text style={styles.weatherTemp}>{displayWeather()}</Text>
-          </View>
         </View>
 
-        {/* Weather details */}
-        {weather.length > 2 && (
-          <View style={styles.weatherDetail}>
-            <Ionicons name="cloud-outline" size={16} color="#007AFF" />
-            <Text style={styles.weatherDetailText}>{fullWeather()}</Text>
-          </View>
-        )}
+        {/* 1.5 Real-time Weather Dashboard */}
+        <View style={styles.liveWeatherCard}>
+           <View style={styles.liveHeaderRow}>
+              <View style={{flexDirection: 'row', alignItems: 'center', gap: 6}}>
+                <Ionicons name="partly-sunny" size={20} color="#FFD700" />
+                <Text style={styles.weatherTitle}>Destination Weather</Text>
+              </View>
+              <View style={styles.liveBadgeSmall}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveBadgeSmallText}>LIVE</Text>
+              </View>
+           </View>
+           
+           <View style={styles.weatherInfoRow}>
+             <Text style={styles.weatherTempLarge}>{displayWeather()}</Text>
+             <Text style={styles.weatherDetailText}>{fullWeather()}</Text>
+           </View>
+        </View>
 
         {/* 2. Map Button */}
         <TouchableOpacity style={styles.mapButton} onPress={openMap}>
@@ -141,19 +148,40 @@ export default function ResultScreen() {
           </View>
         ))}
 
-        {/* 4. Budget Breakdown */}
+        {/* 4. Budget Breakdown with Visual Chart */}
         {plan.budget_breakdown && (
           <View style={styles.budgetCard}>
-            <Text style={styles.budgetTitle}>💰 Budget Breakdown</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <Text style={styles.budgetTitle}>💰 Budget Breakdown</Text>
+              <View style={styles.liveBadge}><Text style={styles.liveBadgeText}>AI Estimated</Text></View>
+            </View>
+            
             <View style={styles.breakdownContainer}>
-              {Object.entries(plan.budget_breakdown).map(([key, value]) => {
+              {Object.entries(plan.budget_breakdown).map(([key, value], index) => {
                 if (key === 'total') return null;
+                
+                // Calculate percentage for the bar chart
+                const totalAmount = parseFloat(calculateTotal()) || 1;
+                const cleanValue = parseFloat(String(value).replace(/[^0-9.]/g, '')) || 0;
+                const percentage = Math.min(100, Math.max(0, (cleanValue / totalAmount) * 100));
+                
+                // Colors for different categories
+                const colors = ['#4ade80', '#60a5fa', '#f472b6', '#fbbf24', '#a78bfa'];
+                const barColor = colors[index % colors.length];
+
                 return (
                   <View key={key} style={styles.budgetRow}>
-                    <Text style={styles.budgetItem}>
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </Text>
-                    <Text style={styles.budgetCost}>{String(value)} LKR</Text>
+                    <View style={styles.budgetRowHeader}>
+                      <Text style={styles.budgetItem}>
+                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                      </Text>
+                      <Text style={styles.budgetCost}>{String(value)} LKR</Text>
+                    </View>
+                    
+                    {/* Visual Bar Chart */}
+                    <View style={styles.chartBarBackground}>
+                      <View style={[styles.chartBarFill, { width: `${percentage}%`, backgroundColor: barColor }]} />
+                    </View>
                   </View>
                 );
               })}
@@ -197,18 +225,28 @@ const styles = StyleSheet.create({
       default: { shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.08, shadowRadius: 8 },
     }),
   },
-  summaryLeft: { flex: 1, marginRight: 10 },
+  summaryLeft: { flex: 1 },
   tripTitle: { fontSize: 19, fontWeight: '800', color: '#007AFF', marginBottom: 6, flexWrap: 'wrap' },
   durationRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   duration: { color: '#888', fontSize: 13 },
-  weatherBadge: { alignItems: 'center', backgroundColor: '#fffbe6', padding: 12, borderRadius: 14 },
-  weatherTemp: { fontWeight: '700', marginTop: 4, fontSize: 12, color: '#333' },
-  weatherDetail: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#eff6ff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8,
-    marginBottom: 14,
+  
+  liveWeatherCard: {
+    backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 20,
+    borderWidth: 1, borderColor: '#e2e8f0',
+    elevation: 2,
+    ...Platform.select({
+      web: { boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.04)' } as any,
+      default: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6 },
+    }),
   },
-  weatherDetailText: { color: '#555', fontSize: 13, flex: 1 },
+  liveHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  weatherTitle: { fontWeight: '700', color: '#1e293b', fontSize: 14 },
+  liveBadgeSmall: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fee2e2', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, gap: 4 },
+  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#ef4444' },
+  liveBadgeSmallText: { color: '#ef4444', fontSize: 10, fontWeight: '800' },
+  weatherInfoRow: { flexDirection: 'column', gap: 4 },
+  weatherTempLarge: { fontSize: 24, fontWeight: '800', color: '#0f172a' },
+  weatherDetailText: { color: '#64748b', fontSize: 13, lineHeight: 20 },
   mapButton: {
     backgroundColor: '#34C759', padding: 15, borderRadius: 14,
     flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 22,
@@ -242,13 +280,18 @@ const styles = StyleSheet.create({
       default: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10 },
     }),
   },
-  budgetTitle: { color: '#fff', fontSize: 18, fontWeight: '800', marginBottom: 16 },
-  breakdownContainer: { gap: 8 },
-  budgetRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  budgetItem: { color: '#aaa', fontSize: 14 },
+  budgetTitle: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  liveBadge: { backgroundColor: 'rgba(74, 222, 128, 0.2)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: '#4ade80' },
+  liveBadgeText: { color: '#4ade80', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+  breakdownContainer: { gap: 14 },
+  budgetRow: { flexDirection: 'column', gap: 6 },
+  budgetRowHeader: { flexDirection: 'row', justifyContent: 'space-between' },
+  budgetItem: { color: '#e2e8f0', fontSize: 14, fontWeight: '600' },
   budgetCost: { color: '#fff', fontWeight: '600', fontSize: 14 },
-  divider: { height: 1, backgroundColor: '#333', marginVertical: 14 },
+  chartBarBackground: { height: 8, backgroundColor: '#334155', borderRadius: 4, width: '100%', overflow: 'hidden' },
+  chartBarFill: { height: '100%', borderRadius: 4 },
+  divider: { height: 1, backgroundColor: '#334155', marginVertical: 18 },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  budgetLabel: { color: '#aaa', fontSize: 14 },
+  budgetLabel: { color: '#94a3b8', fontSize: 14, fontWeight: '500' },
   budgetAmount: { color: '#4ade80', fontSize: 24, fontWeight: '800' },
 });
