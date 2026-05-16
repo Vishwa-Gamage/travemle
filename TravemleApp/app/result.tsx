@@ -8,13 +8,14 @@ import { Ionicons } from '@expo/vector-icons';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 type LocalSearchParams = {
-  data:         string;
-  weather:      string;
-  map_url:      string;
-  weather_days: string;   // JSON array of per-day forecast objects
-  season_info:  string;
-  budget_ref:   string;
-  alternatives: string;
+  data:          string;
+  weather:       string;
+  map_url:       string;
+  weather_days:  string;
+  weather_alert: string;
+  season_info:   string;
+  budget_ref:    string;
+  alternatives:  string;
 };
 
 interface WeatherDay {
@@ -29,6 +30,26 @@ interface WeatherDay {
   humidity:    number | null;
   rain_pct:    number | null;
   available:   boolean;
+}
+
+interface WeatherAlertPlace {
+  name:         string;
+  category:     string;
+  description:  string;
+  region:       string;
+  weather_note: string;
+  reason:       string;
+}
+
+interface WeatherAlert {
+  is_rainy:       boolean;
+  avg_rain_pct?:  number;
+  rainy_days?:    number;
+  total_days?:    number;
+  message?:       string;
+  source?:        string;
+  alternatives?:  WeatherAlertPlace[];
+  better_regions?: Array<{ region: string; region_label: string; season: string }>;
 }
 
 interface SeasonInfo {
@@ -88,13 +109,14 @@ export default function ResultScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<LocalSearchParams>();
 
-  const plan         = safeParseJson<any>(params.data, null);
-  const weather      = params.weather || '';
-  const mapUrl       = params.map_url || '';
-  const weatherDays  = safeParseJson<WeatherDay[]>(params.weather_days, []);
-  const seasonInfo   = safeParseJson<SeasonInfo>(params.season_info,  {} as SeasonInfo);
-  const budgetRef    = safeParseJson<BudgetRef>(params.budget_ref,    {} as BudgetRef);
-  const alternatives = safeParseJson<Alternative[]>(params.alternatives, []);
+  const plan          = safeParseJson<any>(params.data, null);
+  const weather       = params.weather || '';
+  const mapUrl        = params.map_url || '';
+  const weatherDays   = safeParseJson<WeatherDay[]>(params.weather_days,   []);
+  const weatherAlert  = safeParseJson<WeatherAlert>(params.weather_alert,  {} as WeatherAlert);
+  const seasonInfo    = safeParseJson<SeasonInfo>(params.season_info,   {} as SeasonInfo);
+  const budgetRef     = safeParseJson<BudgetRef>(params.budget_ref,     {} as BudgetRef);
+  const alternatives  = safeParseJson<Alternative[]>(params.alternatives, []);
 
   if (!plan) {
     return (
@@ -235,6 +257,54 @@ export default function ResultScreen() {
           )}
           <Text style={styles.sourceText}>📡 Source: OpenWeatherMap Forecast API (5-day / 3-hour)</Text>
         </View>
+
+        {/* ── 🌧️ Rainy-Day Alert & Drier-Region Recommendations ────────── */}
+        {weatherAlert?.is_rainy && (
+          <View style={styles.rainAlertCard}>
+            {/* Alert header */}
+            <View style={styles.rainAlertHeader}>
+              <Text style={styles.rainAlertIcon}>🌧️</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rainAlertTitle}>Heavy Rain Forecasted</Text>
+                <Text style={styles.rainAlertSubtitle}>
+                  {weatherAlert.rainy_days}/{weatherAlert.total_days} forecast days · Avg {weatherAlert.avg_rain_pct}% precipitation
+                </Text>
+              </View>
+              <View style={styles.rainPctBadge}>
+                <Text style={styles.rainPctBadgeText}>{weatherAlert.avg_rain_pct}%</Text>
+              </View>
+            </View>
+
+            <View style={styles.rainDivider} />
+
+            {/* Message */}
+            <Text style={styles.rainAlertMessage}>{weatherAlert.message}</Text>
+
+            {/* Better region alternatives */}
+            {(weatherAlert.alternatives?.length ?? 0) > 0 && (
+              <>
+                <Text style={styles.rainAltTitle}>☀️ Consider These Instead</Text>
+                {weatherAlert.alternatives!.map((place, i) => (
+                  <View key={i} style={styles.rainAltItem}>
+                    <View style={styles.rainAltTop}>
+                      <Text style={styles.rainAltName}>{place.name}</Text>
+                      <View style={styles.rainAltRegionBadge}>
+                        <Text style={styles.rainAltRegionText}>{place.region}</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.rainAltWeatherNote}>{place.weather_note}</Text>
+                    <Text style={styles.rainAltReason}>✓ {place.reason}</Text>
+                    <Text style={styles.rainAltDesc} numberOfLines={2}>{place.description}</Text>
+                  </View>
+                ))}
+              </>
+            )}
+
+            {weatherAlert.source && (
+              <Text style={styles.sourceText}>📊 Source: {weatherAlert.source}</Text>
+            )}
+          </View>
+        )}
 
         {/* ── 3. Peak / Off-Peak Season Intelligence ──────────────────────── */}
         {seasonInfo?.label && (
@@ -550,4 +620,30 @@ const styles = StyleSheet.create({
   altDesc:          { fontSize: 12, color: '#666', lineHeight: 17 },
   altCategoryBadge: { backgroundColor: '#eff6ff', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start', marginTop: 2 },
   altCategoryText:  { fontSize: 11, color: '#007AFF', fontWeight: '700' },
+
+  // ── Rainy-Day Alert Card ──────────────────────────────────────────────────
+  rainAlertCard: {
+    backgroundColor: '#1e1b4b', borderRadius: 18, padding: 18, marginBottom: 14,
+    borderWidth: 1.5, borderColor: '#4f46e5', ...shadow(4, 0.18, 10),
+  },
+  rainAlertHeader:   { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 2 },
+  rainAlertIcon:     { fontSize: 28 },
+  rainAlertTitle:    { color: '#e0e7ff', fontSize: 16, fontWeight: '800' },
+  rainAlertSubtitle: { color: '#a5b4fc', fontSize: 12, marginTop: 2 },
+  rainPctBadge:      { backgroundColor: '#4f46e5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
+  rainPctBadgeText:  { color: '#fff', fontSize: 14, fontWeight: '800' },
+  rainDivider:       { height: 1, backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: 12 },
+  rainAlertMessage:  { color: '#c7d2fe', fontSize: 13, lineHeight: 19, marginBottom: 14 },
+  rainAltTitle:      { color: '#e0e7ff', fontSize: 14, fontWeight: '800', marginBottom: 10 },
+  rainAltItem: {
+    backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 12,
+    padding: 12, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+  },
+  rainAltTop:        { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
+  rainAltName:       { color: '#fff', fontSize: 14, fontWeight: '700', flex: 1 },
+  rainAltRegionBadge: { backgroundColor: '#4f46e5', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
+  rainAltRegionText: { color: '#c7d2fe', fontSize: 10, fontWeight: '700' },
+  rainAltWeatherNote:{ color: '#a5b4fc', fontSize: 11, marginBottom: 3, lineHeight: 15 },
+  rainAltReason:     { color: '#86efac', fontSize: 11, fontWeight: '600', marginBottom: 4 },
+  rainAltDesc:       { color: '#94a3b8', fontSize: 11, lineHeight: 15 },
 });

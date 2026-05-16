@@ -397,6 +397,180 @@ def suggest_alternative_destinations(city: str, interests: str, country: str) ->
         return []
 
 
+# Representative cities per region — used to suggest drier alternatives
+REGION_SAMPLE_CITIES = {
+    "west_south": ["galle", "colombo", "mirissa", "bentota", "hikkaduwa"],
+    "east":       ["trincomalee", "arugam bay", "pasikuda"],
+    "central":    ["kandy", "ella", "sigiriya", "nuwara eliya"],
+}
+
+REGION_LABELS = {
+    "west_south": "West & South Coast",
+    "east":       "East Coast",
+    "central":    "Central Highlands",
+}
+
+
+def suggest_rainy_weather_alternatives(
+    city: str,
+    weather_days: list,
+    start_date_str: str,
+    interests: str,
+    country: str,
+    user=None,
+) -> dict:
+    """
+    Analyses the trip's forecast data. If significant rain is detected
+    (>= 50% of forecast-available days have max rain probability >= 60%),
+    finds other Sri Lanka regions that are in a better season for that month
+    and returns interest-matched destinations from those regions.
+
+    Also incorporates the user's historical trip interests to personalise
+    the recommendations.
+
+    Source logic:
+      - Rain threshold: OpenWeatherMap PoP (Probability of Precipitation) >= 60%
+      - Better-region detection: SLTDA regional seasonality data
+    """
+    try:
+        # ── Step 1: Analyse rain across forecast-available days ──────────────
+        available_days = [d for d in weather_days if d.get("available")]
+        if not available_days:
+            return {"is_rainy": False}
+
+        rainy_days  = [d for d in available_days if (d.get("rain_pct") or 0) >= 60]
+        rainy_count = len(rainy_days)
+        avg_rain    = round(sum(d.get("rain_pct", 0) for d in available_days) / len(available_days))
+        is_rainy    = rainy_count >= max(1, len(available_days) // 2)  # >= 50% days rainy
+
+        if not is_rainy:
+            return {"is_rainy": False, "avg_rain_pct": avg_rain}
+
+        # ── Step 2: Determine which region the chosen city belongs to ────────
+        city_lower = city.lower().strip()
+        if city_lower in EAST_COAST_CITIES:
+            current_region = "east"
+        elif city_lower in CENTRAL_CITIES:
+            current_region = "central"
+        else:
+            current_region = "west_south"
+
+        # ── Step 3: Find OTHER regions with better weather that month ────────
+        month = datetime.strptime(start_date_str, "%Y-%m-%d").month
+        better_regions = []
+        for region, monthly_data in SL_SEASON_DATA.items():
+            if region == current_region:
+                continue
+            season_val = monthly_data[month]
+            if season_val in ("peak", "shoulder"):  # peak or shoulder = drier/better
+                better_regions.append({
+                    "region":       region,
+                    "region_label": REGION_LABELS[region],
+                    "season":       season_val,
+                })
+
+        # Sort: prefer peak over shoulder
+        better_regions.sort(key=lambda r: 0 if r["season"] == "peak" else 1)
+
+        if not better_regions:
+            # No clearly better region — still return alert but no specific alts
+            return {
+                "is_rainy":       True,
+                "avg_rain_pct":   avg_rain,
+                "rainy_days":     rainy_count,
+                "total_days":     len(available_days),
+                "better_regions": [],
+                "alternatives":   [],
+                "message": (
+                    f"Heavy rain expected on {rainy_count}/{len(available_days)} forecast days "
+                    f"(avg {avg_rain}% precipitation). Consider flexible travel insurance."
+                ),
+            }
+
+        # ── Step 4: Build merged interest list (current + user history) ──────
+        interest_set = set(i.strip().lower() for i in interests.split(',') if i.strip())
+        if user:
+            # Enrich with top interests from trip history
+            past_trips = TripPlan.objects.filter(user=user).order_by('-created_at')[:15]
+            hist_interests = []
+            for t in past_trips:
+                if t.interests:
+                    hist_interests.extend(i.strip().lower() for i in t.interests.split(',') if i.strip())
+            if hist_interests:
+                top_hist = [k for k, _ in Counter(hist_interests).most_common(3)]
+                interest_set.update(top_hist)
+
+        # ── Step 5: Find destinations in better regions matching interests ────
+        best_region   = better_regions[0]
+        sample_cities = set(REGION_SAMPLE_CITIES.get(best_region["region"], []))
+
+        dests = Destination.objects.filter(country__icontains=country)
+        rainy_alternatives = []
+        seen_names = set()
+
+        for d in dests:
+            if d.name.lower() == city_lower:
+                continue
+            # Check if this destination belongs to the better region
+            in_better_region = (
+                d.name.lower() in sample_cities
+                or any(sc in d.name.lower() for sc in sample_cities)
+                or (
+                    best_region["region"] == "east"
+                    and d.name.lower() in EAST_COAST_CITIES
+                )
+                or (
+                    best_region["region"] == "central"
+                    and d.name.lower() in CENTRAL_CITIES
+                )
+            )
+            interest_match = d.category.lower() in interest_set
+
+            if (in_better_region or interest_match) and d.name not in seen_names:
+                rainy_alternatives.append({
+                    "name":          d.name,
+                    "category":      d.category,
+                    "description":   (
+                        d.description[:120] + "..."
+                        if len(d.description) > 120 else d.description
+                    ),
+                    "region":        best_region["region_label"],
+                    "weather_note":  (
+                        f"{best_region['region_label']} is in "
+                        f"{best_region['season'].replace('_', '-')} season "
+                        f"— significantly drier than your chosen destination."
+                    ),
+                    "reason": (
+                        f"Better weather + matches your '{d.category}' interest"
+                        if interest_match else
+                        f"Drier weather in {best_region['region_label']} this month"
+                    ),
+                })
+                seen_names.add(d.name)
+            if len(rainy_alternatives) >= 4:
+                break
+
+        month_name = datetime.strptime(start_date_str, "%Y-%m-%d").strftime("%B")
+        return {
+            "is_rainy":       True,
+            "avg_rain_pct":   avg_rain,
+            "rainy_days":     rainy_count,
+            "total_days":     len(available_days),
+            "better_regions": better_regions,
+            "alternatives":   rainy_alternatives,
+            "source":         "OpenWeatherMap PoP data + SLTDA Regional Seasonality Guide",
+            "message": (
+                f"Heavy rain forecast on {rainy_count} of {len(available_days)} days "
+                f"(avg {avg_rain}% precipitation) for your selected dates. "
+                f"{best_region['region_label']} experiences better conditions in {month_name}."
+            ),
+        }
+
+    except Exception as e:
+        print(f"Rainy alert error: {e}")
+        return {"is_rainy": False}
+
+
 def analyze_user_interests_from_history(user) -> dict:
     """
     Automatically analyzes a user's interest patterns from their past trips.
@@ -667,6 +841,16 @@ class TravelPlanView(APIView):
         # ── Alternative Destination Suggestions ─────────────────────────────
         alternatives = suggest_alternative_destinations(city, interests, country)
 
+        # ── Rainy-Day Weather Alert & Drier-Region Recommendations ──────────
+        weather_alert = suggest_rainy_weather_alternatives(
+            city=city,
+            weather_days=weather_days,
+            start_date_str=start_date,
+            interests=interests,
+            country=country,
+            user=request.user,
+        )
+
         # ── AI Itinerary Generation ─────────────────────────────────────────
         plan_data, error = generate_itinerary(
             city, country, origin, start_date, end_date, interests, budget, mode, recommended_str
@@ -693,7 +877,7 @@ class TravelPlanView(APIView):
                 budget=budget_int,
                 travel_mode=mode,
                 plan_json=plan_data,
-                weather_summary=weather_summary,   # plain-text summary for DB
+                weather_summary=weather_summary,
                 map_url=map_url,
             )
         except Exception as e:
@@ -701,13 +885,14 @@ class TravelPlanView(APIView):
 
         return Response(
             {
-                "plan":          plan_data,
-                "weather":       weather_summary,   # kept for backward compatibility
-                "weather_days":  weather_days,      # structured per-day forecast
-                "map_url":       map_url,
-                "season_info":   season_info,
-                "budget_ref":    budget_ref,
-                "alternatives":  alternatives,
+                "plan":           plan_data,
+                "weather":        weather_summary,
+                "weather_days":   weather_days,
+                "map_url":        map_url,
+                "season_info":    season_info,
+                "budget_ref":     budget_ref,
+                "alternatives":   alternatives,
+                "weather_alert":  weather_alert,   # 🌧️ rainy-day drier alternatives
             },
             status=status.HTTP_200_OK,
         )
