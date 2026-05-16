@@ -3,22 +3,33 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert,
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { ENDPOINTS } from '@/constants/config';
-// FIX (BUG-04): import from shared constant so Plan and Profile screens
-// always have the same list of interests.
 import { INTERESTS } from '@/constants/interests';
 import api from '@/services/api';
 
 const TRAVEL_MODES = ['Car', 'Bus', 'Train'] as const;
 
+interface InsightInterest { interest: string; trips: number; percentage: number; }
+interface Insights {
+  status:         string;
+  total_trips?:   number;
+  top_interests?: InsightInterest[];
+  preferred_mode?:string;
+  avg_budget?:    number;
+  budget_trend?:  string;
+  most_visited?:  string | null;
+  insight?:       string;
+  message?:       string;
+}
+
 export default function ProfileScreen() {
-  // FIX (BUG-01): replaced broken `setUser` (wasn't exported) with `refreshUser`
-  // which re-fetches /api/auth/me/ so the UI reflects the server's latest values.
   const { user, refreshUser, logout } = useAuth();
   
   const [budget, setBudget] = useState('20000');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState<string>('Bus');
   const [loading, setLoading] = useState(false);
+  const [insights, setInsights] = useState<Insights | null>(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
   
   useEffect(() => {
     if (user?.profile) {
@@ -28,7 +39,21 @@ export default function ProfileScreen() {
         setSelectedInterests(user.profile.interests_csv.split(',').map((s: string) => s.trim()));
       }
     }
+    // Auto-fetch behavioural insights from trip history
+    fetchInsights();
   }, [user]);
+
+  const fetchInsights = async () => {
+    setInsightsLoading(true);
+    try {
+      const res = await api.get(ENDPOINTS.insights);
+      setInsights(res.data);
+    } catch (e) {
+      console.error('Could not load insights:', e);
+    } finally {
+      setInsightsLoading(false);
+    }
+  };
 
   const toggleInterest = (interest: string) => {
     setSelectedInterests(prev =>
@@ -127,6 +152,74 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveButtonText}>Save Preferences</Text>}
         </TouchableOpacity>
+
+        {/* ── Behavioural Insights Panel ──────────────────────────────── */}
+        <Text style={[styles.sectionTitle, { marginTop: 28 }]}>📊 Your Travel Insights</Text>
+        <Text style={styles.insightSubtitle}>Auto-analyzed from your trip history</Text>
+
+        {insightsLoading ? (
+          <ActivityIndicator color="#007AFF" style={{ marginTop: 12 }} />
+        ) : !insights || insights.status === 'no_history' ? (
+          <View style={styles.insightEmpty}>
+            <Ionicons name="analytics-outline" size={36} color="#ccc" />
+            <Text style={styles.insightEmptyText}>Plan your first trip to unlock personalized insights!</Text>
+          </View>
+        ) : (
+          <View style={styles.insightCard}>
+            {/* Summary Insight */}
+            <View style={styles.insightHighlight}>
+              <Ionicons name="bulb-outline" size={18} color="#f59e0b" />
+              <Text style={styles.insightHighlightText}>{insights.insight}</Text>
+            </View>
+
+            {/* Stats Row */}
+            <View style={styles.statsRow}>
+              <View style={styles.statBox}>
+                <Text style={styles.statValue}>{insights.total_trips}</Text>
+                <Text style={styles.statLabel}>Trips Planned</Text>
+              </View>
+              <View style={styles.statBox}>
+                <Text style={styles.statValue}>LKR {(insights.avg_budget || 0).toLocaleString()}</Text>
+                <Text style={styles.statLabel}>Avg Budget</Text>
+              </View>
+              <View style={styles.statBox}>
+                <Text style={styles.statValue}>{insights.preferred_mode}</Text>
+                <Text style={styles.statLabel}>Fav Mode</Text>
+              </View>
+            </View>
+
+            {/* Top Interests */}
+            {insights.top_interests && insights.top_interests.length > 0 && (
+              <View style={styles.interestSection}>
+                <Text style={styles.insightSectionLabel}>Top Interests (from history)</Text>
+                {insights.top_interests.map((item, i) => (
+                  <View key={i} style={styles.interestBar}>
+                    <View style={styles.interestBarLabelRow}>
+                      <Text style={styles.interestBarLabel}>{item.interest}</Text>
+                      <Text style={styles.interestBarPct}>{item.percentage}%</Text>
+                    </View>
+                    <View style={styles.interestBarBg}>
+                      <View style={[styles.interestBarFill, { width: `${item.percentage}%` }]} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Budget Trend */}
+            <View style={styles.trendRow}>
+              <Ionicons name="trending-up-outline" size={16} color="#007AFF" />
+              <Text style={styles.trendText}>Budget Trend: {insights.budget_trend}</Text>
+            </View>
+
+            {insights.most_visited && (
+              <View style={styles.trendRow}>
+                <Ionicons name="location-outline" size={16} color="#007AFF" />
+                <Text style={styles.trendText}>Most visited: {insights.most_visited}</Text>
+              </View>
+            )}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -178,4 +271,39 @@ const styles = StyleSheet.create({
     shadowColor: '#007AFF', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 4,
   },
   saveButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+
+  // Insights Panel
+  insightSubtitle:     { fontSize: 12, color: '#999', marginBottom: 12, marginTop: -10 },
+  insightEmpty: {
+    backgroundColor: '#f8f9fa', borderRadius: 14, padding: 24,
+    alignItems: 'center', gap: 10, marginBottom: 20,
+  },
+  insightEmptyText: { color: '#bbb', fontSize: 13, textAlign: 'center' },
+  insightCard: {
+    backgroundColor: '#1a1a2e', borderRadius: 16, padding: 18, marginBottom: 20,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 6,
+  },
+  insightHighlight: {
+    flexDirection: 'row', gap: 8, alignItems: 'flex-start',
+    backgroundColor: 'rgba(245,158,11,0.12)', borderRadius: 10, padding: 12, marginBottom: 16,
+    borderLeftWidth: 3, borderLeftColor: '#f59e0b',
+  },
+  insightHighlightText: { color: '#e2e8f0', fontSize: 13, lineHeight: 19, flex: 1 },
+  statsRow:   { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 18, gap: 8 },
+  statBox: {
+    flex: 1, backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 10,
+    padding: 12, alignItems: 'center',
+  },
+  statValue: { color: '#4ade80', fontSize: 14, fontWeight: '800', marginBottom: 2, textAlign: 'center' },
+  statLabel: { color: '#94a3b8', fontSize: 10, textAlign: 'center' },
+  interestSection:   { marginBottom: 14 },
+  insightSectionLabel: { color: '#94a3b8', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', marginBottom: 10, letterSpacing: 0.5 },
+  interestBar:       { marginBottom: 10 },
+  interestBarLabelRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  interestBarLabel:  { color: '#e2e8f0', fontSize: 13, fontWeight: '600' },
+  interestBarPct:    { color: '#60a5fa', fontSize: 12, fontWeight: '700' },
+  interestBarBg:     { height: 6, backgroundColor: '#334155', borderRadius: 3, overflow: 'hidden' },
+  interestBarFill:   { height: '100%', backgroundColor: '#007AFF', borderRadius: 3 },
+  trendRow:          { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  trendText:         { color: '#94a3b8', fontSize: 12, flex: 1 },
 });

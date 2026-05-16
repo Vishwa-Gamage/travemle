@@ -100,9 +100,13 @@ export default function HomeScreen() {
       router.push({
         pathname: '/result',
         params: {
-          data:    JSON.stringify(planData.plan),
-          weather: planData.weather,
-          map_url: planData.map_url,
+          data:         JSON.stringify(planData.plan),
+          weather:      planData.weather,
+          weather_days: JSON.stringify(planData.weather_days || []),
+          map_url:      planData.map_url,
+          season_info:  JSON.stringify(planData.season_info  || {}),
+          budget_ref:   JSON.stringify(planData.budget_ref   || {}),
+          alternatives: JSON.stringify(planData.alternatives || []),
         },
       });
     } catch (err: any) {

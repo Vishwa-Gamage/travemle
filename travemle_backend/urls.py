@@ -11,6 +11,7 @@ from planner.views import (
     TravelPlanView,
     TripHistoryView,
     ChatbotView,
+    UserInsightsView,
 )
 
 urlpatterns = [
@@ -30,4 +31,5 @@ urlpatterns = [
     path('api/trip-history/', TripHistoryView.as_view(), name='trip-history'),
     path('api/trip-history/<int:pk>/', TripHistoryView.as_view(), name='trip-delete'),
     path('api/chat/', ChatbotView.as_view(), name='chatbot'),
+    path('api/insights/', UserInsightsView.as_view(), name='user-insights'),
 ]

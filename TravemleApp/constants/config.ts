@@ -36,4 +36,7 @@ export const ENDPOINTS = {
   
   // Chatbot
   chat:               `${API_BASE_URL}/api/chat/`,
+
+  // User behaviour insights (auto-analyzed from trip history)
+  insights:           `${API_BASE_URL}/api/insights/`,
 };
