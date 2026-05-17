@@ -182,7 +182,13 @@ def get_weather_forecast_multiday(city: str, country: str,
         from collections import defaultdict
         slots_by_date = defaultdict(list)
         for item in data.get("list", []):
-            slot_dt   = datetime.fromtimestamp(item["dt"])
+            # FIX (BUG-07): OWM 'dt' values are UTC Unix timestamps.
+            # datetime.fromtimestamp() converts using the SERVER's local TZ
+            # (e.g. UTC+5:30 on a Windows dev machine), which shifts late-
+            # evening UTC slots into the next local day and mismatches the
+            # YYYY-MM-DD trip dates sent from the frontend.
+            # utcfromtimestamp() keeps both in the same UTC frame.
+            slot_dt   = datetime.utcfromtimestamp(item["dt"])
             slot_date = slot_dt.date()
             slots_by_date[slot_date].append({
                 "hour":        slot_dt.hour,

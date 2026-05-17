@@ -51,7 +51,16 @@ export default function HomeScreen() {
   const [isStartPickerVisible, setStartPickerVisible] = useState(false);
   const [isEndPickerVisible, setEndPickerVisible]     = useState(false);
 
-  const formatDate = (d: Date) => d.toISOString().split('T')[0];
+  // FIX (BUG-06): Use LOCAL date components, NOT toISOString().
+  // toISOString() returns UTC time — in UTC+5:30 a local midnight date is
+  // shifted back 5h30m, turning "May 19 00:00 local" into "May 18 18:30Z"
+  // which splits to "2026-05-18" — one day early sent to the backend.
+  const formatDate = (d: Date): string => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
 
   const handleConfirmStart = (date: Date) => {
     setStartDate(date);
