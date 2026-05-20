@@ -646,20 +646,18 @@ def analyze_user_interests_from_history(user) -> dict:
     }
 
 
-def generate_itinerary(city, country, origin, start_date, end_date, interests, budget, mode, recommended_places=""):
+def generate_itinerary(city, country, origin, start_date, end_date, interests, food_prefs, acc_prefs, act_prefs, budget, mode, recommended_places=""):
     if llm is None:
         return None, "LLM not configured. Check GROQ_API_KEY."
 
-    # FIX (QUAL-03): build the prompt as a plain string first, then append
-    # the recommendations line conditionally.  The previous ternary expression
-    #   f"..." f"..." if recommended_places else ""
-    # has Python operator-precedence issue: when recommended_places is falsy
-    # the entire HumanMessage content evaluates to "" (empty string), sending
-    # a blank message to the LLM.
     human_content = (
         f"Plan a trip to {city}, {country} from {origin}.\n"
         f"Dates: {start_date} to {end_date}.\n"
-        f"Interests: {interests}. Budget: {budget} LKR. Mode: {mode}."
+        f"General Interests: {interests}.\n"
+        f"Food Preferences: {food_prefs}.\n"
+        f"Accommodation Preferences: {acc_prefs}.\n"
+        f"Activity Preferences: {act_prefs}.\n"
+        f"Budget: {budget} LKR. Mode: {mode}."
     )
     if recommended_places:
         human_content += (
@@ -771,6 +769,12 @@ class MeView(APIView):
                 profile.default_travel_mode = data['default_travel_mode']
             if 'interests_csv' in data:
                 profile.interests_csv = data['interests_csv']
+            if 'food_preferences' in data:
+                profile.food_preferences = data['food_preferences']
+            if 'accommodation_preferences' in data:
+                profile.accommodation_preferences = data['accommodation_preferences']
+            if 'activity_preferences' in data:
+                profile.activity_preferences = data['activity_preferences']
             profile.save()
             return Response(UserSerializer(request.user).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -805,6 +809,9 @@ class TravelPlanView(APIView):
         start_date = data.get("start_date", "")
         end_date   = data.get("end_date", "")
         interests  = data.get("interests", "")
+        food_preferences = data.get("food_preferences", "")
+        accommodation_preferences = data.get("accommodation_preferences", "")
+        activity_preferences = data.get("activity_preferences", "")
         budget     = data.get("budget", 0)
         mode       = data.get("travel_mode", "Car")
 
@@ -859,7 +866,7 @@ class TravelPlanView(APIView):
 
         # ── AI Itinerary Generation ─────────────────────────────────────────
         plan_data, error = generate_itinerary(
-            city, country, origin, start_date, end_date, interests, budget, mode, recommended_str
+            city, country, origin, start_date, end_date, interests, food_preferences, accommodation_preferences, activity_preferences, budget, mode, recommended_str
         )
         if plan_data is None:
             return Response({"error": error}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
@@ -880,6 +887,9 @@ class TravelPlanView(APIView):
                 start_date=start_date,
                 end_date=end_date,
                 interests=interests,
+                food_preferences=food_preferences,
+                accommodation_preferences=accommodation_preferences,
+                activity_preferences=activity_preferences,
                 budget=budget_int,
                 travel_mode=mode,
                 plan_json=plan_data,

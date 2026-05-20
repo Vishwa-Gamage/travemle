@@ -11,7 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { ENDPOINTS } from '@/constants/config';
 // FIX (BUG-04): import from the shared constant — previously this screen only
 // had 6 interests while profile.tsx had 8, so History/Wildlife prefs were lost.
-import { INTERESTS } from '@/constants/interests';
+import { INTERESTS, FOOD_PREFERENCES, ACCOMMODATION_PREFERENCES, ACTIVITY_PREFERENCES } from '@/constants/interests';
 import api from '@/services/api';
 
 const TRAVEL_MODES = ['Car', 'Bus', 'Train'] as const;
@@ -33,6 +33,9 @@ export default function HomeScreen() {
   const [city, setCity]       = useState('');
   const [budget, setBudget]   = useState('50000');
   const [selectedInterests, setSelectedInterests] = useState<string[]>(['Culture', 'Temple']);
+  const [foodPreferences, setFoodPreferences]     = useState<string[]>([]);
+  const [accommodationPreferences, setAccommodationPreferences] = useState<string[]>([]);
+  const [activityPreferences, setActivityPreferences] = useState<string[]>([]);
   const [selectedMode, setSelectedMode]           = useState<string>('Bus');
   const [loading, setLoading] = useState(false);
 
@@ -42,6 +45,15 @@ export default function HomeScreen() {
       setSelectedMode(user.profile.default_travel_mode);
       if (user.profile.interests_csv) {
         setSelectedInterests(user.profile.interests_csv.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.food_preferences) {
+        setFoodPreferences(user.profile.food_preferences.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.accommodation_preferences) {
+        setAccommodationPreferences(user.profile.accommodation_preferences.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.activity_preferences) {
+        setActivityPreferences(user.profile.activity_preferences.split(',').map((s: string) => s.trim()));
       }
     }
   }, [user]);
@@ -81,6 +93,18 @@ export default function HomeScreen() {
     );
   };
 
+  const toggleFoodPreference = (pref: string) => {
+    setFoodPreferences(prev => prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]);
+  };
+
+  const toggleAccommodationPreference = (pref: string) => {
+    setAccommodationPreferences(prev => prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]);
+  };
+
+  const toggleActivityPreference = (pref: string) => {
+    setActivityPreferences(prev => prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]);
+  };
+
   const handlePlanTrip = async () => {
     if (!city.trim()) {
       Alert.alert('Missing Destination', 'Please enter a destination city.');
@@ -101,6 +125,9 @@ export default function HomeScreen() {
         start_date:  formatDate(startDate),
         end_date:    formatDate(endDate),
         interests:   selectedInterests.join(', '),
+        food_preferences: foodPreferences.join(', '),
+        accommodation_preferences: accommodationPreferences.join(', '),
+        activity_preferences: activityPreferences.join(', '),
         budget:      parseInt(budget) || 20000,
         travel_mode: selectedMode,
       });
@@ -284,6 +311,55 @@ export default function HomeScreen() {
             })}
           </View>
 
+          {/* Specific Preferences */}
+          <Text style={styles.label}>Food Preferences</Text>
+          <View style={styles.chipsContainer}>
+            {FOOD_PREFERENCES.map((item) => {
+              const sel = foodPreferences.includes(item);
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.chip, sel && styles.chipSelected]}
+                  onPress={() => toggleFoodPreference(item)}
+                >
+                  <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <Text style={styles.label}>Accommodation Preferences</Text>
+          <View style={styles.chipsContainer}>
+            {ACCOMMODATION_PREFERENCES.map((item) => {
+              const sel = accommodationPreferences.includes(item);
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.chip, sel && styles.chipSelected]}
+                  onPress={() => toggleAccommodationPreference(item)}
+                >
+                  <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <Text style={styles.label}>Activity Preferences</Text>
+          <View style={styles.chipsContainer}>
+            {ACTIVITY_PREFERENCES.map((item) => {
+              const sel = activityPreferences.includes(item);
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.chip, sel && styles.chipSelected]}
+                  onPress={() => toggleActivityPreference(item)}
+                >
+                  <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
           {/* Travel Mode */}
           <Text style={styles.label}>Travel Mode</Text>
           <View style={styles.modesContainer}>
@@ -346,19 +422,19 @@ const modeButtonShadow = Platform.select({
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#fff', alignItems: 'center' },
   header: {
     paddingTop: 52, paddingBottom: 14, paddingHorizontal: 20,
     backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
   },
   logoRow:      { flexDirection: 'row', alignItems: 'center' },
-  logoText:     { fontSize: 22, fontWeight: '800', color: '#007AFF', marginLeft: 6 },
+  logoText:     { fontSize: 22, fontWeight: '800', color: '#007AFF', marginLeft: 6, textTransform: 'uppercase', letterSpacing: 1 },
   userRow:      { flexDirection: 'row', alignItems: 'center', gap: 10 },
   userGreeting: { color: '#555', fontSize: 13, fontWeight: '500' },
   backgroundImage:  { flex: 1, resizeMode: 'cover' },
-  scrollContent:    { padding: 20, paddingBottom: 110 },
-  label: { fontSize: 13, color: '#333', fontWeight: '600', marginBottom: 8, marginTop: 16 },
+  scrollContent:    { padding: 20, paddingBottom: 110, width: '100%', maxWidth: 600, alignSelf: 'center' },
+  label: { fontSize: 15, color: '#007AFF', fontWeight: '700', marginBottom: 8, marginTop: 20, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.5 },
   inputContainer: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
     borderRadius: 12, borderWidth: 1.5, borderColor: '#007AFF',
@@ -368,13 +444,13 @@ const styles = StyleSheet.create({
   icon:     { marginRight: 10 },
   row:      { flexDirection: 'row' },
   dateText: { fontSize: 15, color: '#000' },
-  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
   chip: {
-    paddingVertical: 8, paddingHorizontal: 20, borderRadius: 25,
+    paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20,
     backgroundColor: '#f5f5f5', borderWidth: 1, borderColor: '#e0e0e0',
   },
   chipSelected:     { backgroundColor: '#007AFF', borderColor: '#007AFF' },
-  chipText:         { color: '#333', fontWeight: '500' },
+  chipText:         { color: '#333', fontWeight: '500', fontSize: 12 },
   chipTextSelected: { color: '#fff' },
   modesContainer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
   modeButton: {
@@ -394,7 +470,7 @@ const styles = StyleSheet.create({
     borderRadius: 14, alignItems: 'center', elevation: 3,
   },
   planButtonDisabled: { opacity: 0.6 },
-  planButtonText: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  planButtonText: { color: '#fff', fontSize: 17, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
   overlayCard: {
     backgroundColor: '#fff', borderRadius: 20, padding: 36,

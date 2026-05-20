@@ -23,3 +23,31 @@ export const INTERESTS = [
 ] as const;
 
 export type Interest = typeof INTERESTS[number];
+
+export const FOOD_PREFERENCES = [
+  'Spicy',
+  'Vegan',
+  'Vegetarian',
+  'Seafood',
+  'Local Cuisine',
+  'Fast Food',
+  'Halal',
+] as const;
+
+export const ACCOMMODATION_PREFERENCES = [
+  'Hotel',
+  'Hostel',
+  'Villa',
+  'Resort',
+  'Homestay',
+  'Guest House',
+] as const;
+
+export const ACTIVITY_PREFERENCES = [
+  'Hiking',
+  'Surfing',
+  'Relaxing',
+  'Sightseeing',
+  'Shopping',
+  'Nightlife',
+] as const;
