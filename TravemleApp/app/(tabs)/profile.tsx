@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert,
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { ENDPOINTS } from '@/constants/config';
-import { INTERESTS } from '@/constants/interests';
+import { INTERESTS, FOOD_PREFERENCES, ACCOMMODATION_PREFERENCES, ACTIVITY_PREFERENCES } from '@/constants/interests';
 import api from '@/services/api';
 
 const TRAVEL_MODES = ['Car', 'Bus', 'Train'] as const;
@@ -26,6 +26,9 @@ export default function ProfileScreen() {
   
   const [budget, setBudget] = useState('20000');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [foodPreferences, setFoodPreferences] = useState<string[]>([]);
+  const [accommodationPreferences, setAccommodationPreferences] = useState<string[]>([]);
+  const [activityPreferences, setActivityPreferences] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState<string>('Bus');
   const [loading, setLoading] = useState(false);
   const [insights, setInsights] = useState<Insights | null>(null);
@@ -37,6 +40,15 @@ export default function ProfileScreen() {
       setSelectedMode(user.profile.default_travel_mode);
       if (user.profile.interests_csv) {
         setSelectedInterests(user.profile.interests_csv.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.food_preferences) {
+        setFoodPreferences(user.profile.food_preferences.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.accommodation_preferences) {
+        setAccommodationPreferences(user.profile.accommodation_preferences.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.activity_preferences) {
+        setActivityPreferences(user.profile.activity_preferences.split(',').map((s: string) => s.trim()));
       }
     }
     // Auto-fetch behavioural insights from trip history
@@ -61,6 +73,18 @@ export default function ProfileScreen() {
     );
   };
 
+  const toggleFoodPreference = (pref: string) => {
+    setFoodPreferences(prev => prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]);
+  };
+
+  const toggleAccommodationPreference = (pref: string) => {
+    setAccommodationPreferences(prev => prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]);
+  };
+
+  const toggleActivityPreference = (pref: string) => {
+    setActivityPreferences(prev => prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]);
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -68,6 +92,9 @@ export default function ProfileScreen() {
         default_budget: parseInt(budget) || 20000,
         default_travel_mode: selectedMode,
         interests_csv: selectedInterests.join(', '),
+        food_preferences: foodPreferences.join(', '),
+        accommodation_preferences: accommodationPreferences.join(', '),
+        activity_preferences: activityPreferences.join(', '),
       };
       
       await api.put(ENDPOINTS.me, payload);
@@ -142,6 +169,57 @@ export default function ProfileScreen() {
                 key={item}
                 style={[styles.chip, sel && styles.chipSelected]}
                 onPress={() => toggleInterest(item)}
+              >
+                <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Food Preferences */}
+        <Text style={styles.label}>🍽️ Food Preferences</Text>
+        <View style={styles.chipsContainer}>
+          {FOOD_PREFERENCES.map((item) => {
+            const sel = foodPreferences.includes(item);
+            return (
+              <TouchableOpacity
+                key={item}
+                style={[styles.chip, sel && styles.chipSelected]}
+                onPress={() => toggleFoodPreference(item)}
+              >
+                <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Accommodation Preferences */}
+        <Text style={styles.label}>🏨 Accommodation Preferences</Text>
+        <View style={styles.chipsContainer}>
+          {ACCOMMODATION_PREFERENCES.map((item) => {
+            const sel = accommodationPreferences.includes(item);
+            return (
+              <TouchableOpacity
+                key={item}
+                style={[styles.chip, sel && styles.chipSelected]}
+                onPress={() => toggleAccommodationPreference(item)}
+              >
+                <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Activity Preferences */}
+        <Text style={styles.label}>🎯 Activity Preferences</Text>
+        <View style={styles.chipsContainer}>
+          {ACTIVITY_PREFERENCES.map((item) => {
+            const sel = activityPreferences.includes(item);
+            return (
+              <TouchableOpacity
+                key={item}
+                style={[styles.chip, sel && styles.chipSelected]}
+                onPress={() => toggleActivityPreference(item)}
               >
                 <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
               </TouchableOpacity>

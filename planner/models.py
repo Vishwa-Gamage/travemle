@@ -8,6 +8,9 @@ class UserProfile(models.Model):
     default_budget = models.IntegerField(default=20000)
     default_travel_mode = models.CharField(max_length=20, choices=[('Car', 'Car'), ('Bus', 'Bus'), ('Train', 'Train')], default='Bus')
     interests_csv = models.CharField(max_length=500, blank=True, default='')
+    food_preferences = models.CharField(max_length=500, blank=True, default='')
+    accommodation_preferences = models.CharField(max_length=500, blank=True, default='')
+    activity_preferences = models.CharField(max_length=500, blank=True, default='')
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -64,6 +67,9 @@ class TripPlan(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     interests = models.CharField(max_length=500)
+    food_preferences = models.CharField(max_length=500, blank=True, default='')
+    accommodation_preferences = models.CharField(max_length=500, blank=True, default='')
+    activity_preferences = models.CharField(max_length=500, blank=True, default='')
     budget = models.IntegerField()
     travel_mode = models.CharField(max_length=20, choices=TRAVEL_MODE_CHOICES, default='Car')
     plan_json = models.JSONField()          # Full AI-generated plan
