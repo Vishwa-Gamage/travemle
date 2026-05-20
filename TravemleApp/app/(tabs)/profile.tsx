@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert,
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { ENDPOINTS } from '@/constants/config';
-import { INTERESTS } from '@/constants/interests';
+import { INTERESTS, FOOD_PREFERENCES, ACCOMMODATION_PREFERENCES, ACTIVITY_PREFERENCES } from '@/constants/interests';
 import api from '@/services/api';
 
 const TRAVEL_MODES = ['Car', 'Bus', 'Train'] as const;
@@ -26,6 +26,9 @@ export default function ProfileScreen() {
   
   const [budget, setBudget] = useState('20000');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [foodPreferences, setFoodPreferences] = useState<string[]>([]);
+  const [accommodationPreferences, setAccommodationPreferences] = useState<string[]>([]);
+  const [activityPreferences, setActivityPreferences] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState<string>('Bus');
   const [loading, setLoading] = useState(false);
   const [insights, setInsights] = useState<Insights | null>(null);
@@ -37,6 +40,15 @@ export default function ProfileScreen() {
       setSelectedMode(user.profile.default_travel_mode);
       if (user.profile.interests_csv) {
         setSelectedInterests(user.profile.interests_csv.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.food_preferences) {
+        setFoodPreferences(user.profile.food_preferences.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.accommodation_preferences) {
+        setAccommodationPreferences(user.profile.accommodation_preferences.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.activity_preferences) {
+        setActivityPreferences(user.profile.activity_preferences.split(',').map((s: string) => s.trim()));
       }
     }
     // Auto-fetch behavioural insights from trip history
@@ -61,6 +73,18 @@ export default function ProfileScreen() {
     );
   };
 
+  const toggleFoodPreference = (pref: string) => {
+    setFoodPreferences(prev => prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]);
+  };
+
+  const toggleAccommodationPreference = (pref: string) => {
+    setAccommodationPreferences(prev => prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]);
+  };
+
+  const toggleActivityPreference = (pref: string) => {
+    setActivityPreferences(prev => prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]);
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -68,6 +92,9 @@ export default function ProfileScreen() {
         default_budget: parseInt(budget) || 20000,
         default_travel_mode: selectedMode,
         interests_csv: selectedInterests.join(', '),
+        food_preferences: foodPreferences.join(', '),
+        accommodation_preferences: accommodationPreferences.join(', '),
+        activity_preferences: activityPreferences.join(', '),
       };
       
       await api.put(ENDPOINTS.me, payload);
@@ -142,6 +169,55 @@ export default function ProfileScreen() {
                 key={item}
                 style={[styles.chip, sel && styles.chipSelected]}
                 onPress={() => toggleInterest(item)}
+              >
+                <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Specific Preferences */}
+        <Text style={styles.label}>Default Food Preferences</Text>
+        <View style={styles.chipsContainer}>
+          {FOOD_PREFERENCES.map((item) => {
+            const sel = foodPreferences.includes(item);
+            return (
+              <TouchableOpacity
+                key={item}
+                style={[styles.chip, sel && styles.chipSelected]}
+                onPress={() => toggleFoodPreference(item)}
+              >
+                <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <Text style={styles.label}>Default Accommodation Preferences</Text>
+        <View style={styles.chipsContainer}>
+          {ACCOMMODATION_PREFERENCES.map((item) => {
+            const sel = accommodationPreferences.includes(item);
+            return (
+              <TouchableOpacity
+                key={item}
+                style={[styles.chip, sel && styles.chipSelected]}
+                onPress={() => toggleAccommodationPreference(item)}
+              >
+                <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <Text style={styles.label}>Default Activity Preferences</Text>
+        <View style={styles.chipsContainer}>
+          {ACTIVITY_PREFERENCES.map((item) => {
+            const sel = activityPreferences.includes(item);
+            return (
+              <TouchableOpacity
+                key={item}
+                style={[styles.chip, sel && styles.chipSelected]}
+                onPress={() => toggleActivityPreference(item)}
               >
                 <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
               </TouchableOpacity>
@@ -232,8 +308,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     borderBottomWidth: 1, borderBottomColor: '#eee',
   },
-  headerTitle: { fontSize: 22, fontWeight: '700', color: '#333' },
-  content: { padding: 20 },
+  headerTitle: { fontSize: 22, fontWeight: '700', color: '#333', textTransform: 'uppercase', letterSpacing: 1 },
+  content: { padding: 20, width: '100%', maxWidth: 600, alignSelf: 'center' },
   card: {
     backgroundColor: '#fff', borderRadius: 16, padding: 20, alignItems: 'center',
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2,
@@ -242,7 +318,7 @@ const styles = StyleSheet.create({
   username: { fontSize: 20, fontWeight: '600', color: '#111', marginTop: 10 },
   email: { fontSize: 14, color: '#666', marginTop: 4 },
   sectionTitle: { fontSize: 18, fontWeight: '600', color: '#333', marginBottom: 15 },
-  label: { fontSize: 14, fontWeight: '500', color: '#444', marginBottom: 8, marginTop: 10 },
+  label: { fontSize: 15, color: '#007AFF', fontWeight: '700', marginBottom: 8, marginTop: 10, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.5 },
   inputContainer: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
     borderRadius: 12, borderWidth: 1, borderColor: '#ddd', paddingHorizontal: 14, height: 50,
@@ -258,13 +334,13 @@ const styles = StyleSheet.create({
   modeButtonSelected: { borderColor: '#007AFF', backgroundColor: '#eff6ff', borderWidth: 2 },
   modeText: { marginTop: 5, fontSize: 12, color: '#666', fontWeight: '600' },
   modeTextSelected: { color: '#007AFF' },
-  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 30 },
+  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 30, justifyContent: 'center' },
   chip: {
-    paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20,
+    paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20,
     backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd',
   },
   chipSelected: { backgroundColor: '#007AFF', borderColor: '#007AFF' },
-  chipText: { color: '#555', fontWeight: '500' },
+  chipText: { color: '#555', fontWeight: '500', fontSize: 12 },
   chipTextSelected: { color: '#fff' },
   saveButton: {
     backgroundColor: '#007AFF', padding: 16, borderRadius: 12, alignItems: 'center',

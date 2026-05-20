@@ -31,7 +31,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['default_budget', 'default_travel_mode', 'interests_csv']
+        fields = ['default_budget', 'default_travel_mode', 'interests_csv', 'food_preferences', 'accommodation_preferences', 'activity_preferences']
 
 
 # QUAL-02: Dedicated serializer for PUT /api/auth/me/ with proper field
@@ -52,6 +52,24 @@ class ProfileUpdateSerializer(serializers.Serializer):
         error_messages={'invalid_choice': 'Travel mode must be Car, Bus, or Train.'},
     )
     interests_csv = serializers.CharField(
+        max_length=500,
+        allow_blank=True,
+        required=False,
+        default='',
+    )
+    food_preferences = serializers.CharField(
+        max_length=500,
+        allow_blank=True,
+        required=False,
+        default='',
+    )
+    accommodation_preferences = serializers.CharField(
+        max_length=500,
+        allow_blank=True,
+        required=False,
+        default='',
+    )
+    activity_preferences = serializers.CharField(
         max_length=500,
         allow_blank=True,
         required=False,
@@ -82,7 +100,7 @@ class TripPlanSerializer(serializers.ModelSerializer):
         model = TripPlan
         fields = [
             'id', 'user', 'origin', 'destination_city', 'destination_country',
-            'start_date', 'end_date', 'interests', 'budget', 'travel_mode',
+            'start_date', 'end_date', 'interests', 'food_preferences', 'accommodation_preferences', 'activity_preferences', 'budget', 'travel_mode',
             'plan_json', 'weather_summary', 'map_url', 'created_at', 'duration_days'
         ]
         read_only_fields = ['user', 'created_at']
