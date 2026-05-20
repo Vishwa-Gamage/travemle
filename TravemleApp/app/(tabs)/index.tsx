@@ -11,7 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { ENDPOINTS } from '@/constants/config';
 // FIX (BUG-04): import from the shared constant — previously this screen only
 // had 6 interests while profile.tsx had 8, so History/Wildlife prefs were lost.
-import { INTERESTS } from '@/constants/interests';
+import { INTERESTS, FOOD_PREFERENCES, ACCOMMODATION_PREFERENCES, ACTIVITY_PREFERENCES } from '@/constants/interests';
 import api from '@/services/api';
 
 const TRAVEL_MODES = ['Car', 'Bus', 'Train'] as const;
@@ -33,6 +33,9 @@ export default function HomeScreen() {
   const [city, setCity]       = useState('');
   const [budget, setBudget]   = useState('50000');
   const [selectedInterests, setSelectedInterests] = useState<string[]>(['Culture', 'Temple']);
+  const [selectedFoodPreferences, setSelectedFoodPreferences] = useState<string[]>([]);
+  const [selectedAccommodationPreferences, setSelectedAccommodationPreferences] = useState<string[]>([]);
+  const [selectedActivityPreferences, setSelectedActivityPreferences] = useState<string[]>([]);
   const [selectedMode, setSelectedMode]           = useState<string>('Bus');
   const [loading, setLoading] = useState(false);
 
@@ -42,6 +45,15 @@ export default function HomeScreen() {
       setSelectedMode(user.profile.default_travel_mode);
       if (user.profile.interests_csv) {
         setSelectedInterests(user.profile.interests_csv.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.food_preferences) {
+        setSelectedFoodPreferences(user.profile.food_preferences.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.accommodation_preferences) {
+        setSelectedAccommodationPreferences(user.profile.accommodation_preferences.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.activity_preferences) {
+        setSelectedActivityPreferences(user.profile.activity_preferences.split(',').map((s: string) => s.trim()));
       }
     }
   }, [user]);
@@ -81,6 +93,24 @@ export default function HomeScreen() {
     );
   };
 
+  const toggleFoodPreference = (pref: string) => {
+    setSelectedFoodPreferences(prev =>
+      prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]
+    );
+  };
+
+  const toggleAccommodationPreference = (pref: string) => {
+    setSelectedAccommodationPreferences(prev =>
+      prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]
+    );
+  };
+
+  const toggleActivityPreference = (pref: string) => {
+    setSelectedActivityPreferences(prev =>
+      prev.includes(pref) ? prev.filter(i => i !== pref) : [...prev, pref]
+    );
+  };
+
   const handlePlanTrip = async () => {
     if (!city.trim()) {
       Alert.alert('Missing Destination', 'Please enter a destination city.');
@@ -101,6 +131,9 @@ export default function HomeScreen() {
         start_date:  formatDate(startDate),
         end_date:    formatDate(endDate),
         interests:   selectedInterests.join(', '),
+        food_preferences: selectedFoodPreferences.join(', '),
+        accommodation_preferences: selectedAccommodationPreferences.join(', '),
+        activity_preferences: selectedActivityPreferences.join(', '),
         budget:      parseInt(budget) || 20000,
         travel_mode: selectedMode,
       });
@@ -277,6 +310,57 @@ export default function HomeScreen() {
                   key={item}
                   style={[styles.chip, sel && styles.chipSelected]}
                   onPress={() => toggleInterest(item)}
+                >
+                  <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Food Preferences */}
+          <Text style={styles.label}>Food Preferences</Text>
+          <View style={styles.chipsContainer}>
+            {FOOD_PREFERENCES.map((item) => {
+              const sel = selectedFoodPreferences.includes(item);
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.chip, sel && styles.chipSelected]}
+                  onPress={() => toggleFoodPreference(item)}
+                >
+                  <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Accommodation Preferences */}
+          <Text style={styles.label}>Accommodation Preferences</Text>
+          <View style={styles.chipsContainer}>
+            {ACCOMMODATION_PREFERENCES.map((item) => {
+              const sel = selectedAccommodationPreferences.includes(item);
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.chip, sel && styles.chipSelected]}
+                  onPress={() => toggleAccommodationPreference(item)}
+                >
+                  <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Activity Preferences */}
+          <Text style={styles.label}>Activity Preferences</Text>
+          <View style={styles.chipsContainer}>
+            {ACTIVITY_PREFERENCES.map((item) => {
+              const sel = selectedActivityPreferences.includes(item);
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.chip, sel && styles.chipSelected]}
+                  onPress={() => toggleActivityPreference(item)}
                 >
                   <Text style={[styles.chipText, sel && styles.chipTextSelected]}>{item}</Text>
                 </TouchableOpacity>
