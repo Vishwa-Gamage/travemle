@@ -266,9 +266,9 @@ nav button.active,nav button:hover{background:var(--blue);color:#fff}
       <h4>Mobile Application (Expo React Native)</h4>
       <ul>
         <li>Register / Login with JWT authentication</li>
-        <li>AI Trip Planner with budget &amp; date inputs</li>
-        <li>Destination Explorer with category filters</li>
-        <li>Trip History with delete support</li>
+        <li>AI Trip Planner with visual Budget Charts</li>
+        <li>NLP Travel Assistant Chatbot (BETA)</li>
+        <li>Destination Explorer &amp; Trip History</li>
         <li>User Profile management screen</li>
       </ul>
     </div>
@@ -278,9 +278,9 @@ nav button.active,nav button:hover{background:var(--blue);color:#fff}
       <ul>
         <li>JWT auth with token blacklisting on logout</li>
         <li>LLM-powered itinerary generation (Groq)</li>
+        <li>NLP Chatbot Assistant Endpoint (/api/chat/)</li>
         <li>OpenWeather API real-time forecast</li>
         <li>Rate limiting: login 5/min, plan 10/hr</li>
-        <li>Google Maps multi-waypoint URL export</li>
       </ul>
     </div>
     <div class="del">
@@ -288,9 +288,9 @@ nav button.active,nav button:hover{background:var(--blue);color:#fff}
       <h4>AI / Intelligence Layer</h4>
       <ul>
         <li>LangChain + LLaMA-3.3-70B via Groq API</li>
+        <li>Conversational NLP Travel Assistant Chatbot</li>
         <li>Structured JSON output with budget breakdown</li>
         <li>Interest-based destination pre-filtering</li>
-        <li>Transport constraint enforcement</li>
       </ul>
     </div>
     <div class="del">
@@ -315,9 +315,9 @@ nav button.active,nav button:hover{background:var(--blue);color:#fff}
       <div class="boxes">
         <div class="box">Login / Register<small>Auth Flow</small></div>
         <div class="box">Trip Planner<small>Home Screen</small></div>
+        <div class="box">Chatbot<small>AI Assistant</small></div>
         <div class="box">Explore<small>Destinations</small></div>
         <div class="box">History<small>Past Trips</small></div>
-        <div class="box">Profile<small>Preferences</small></div>
       </div>
     </div>
     <div class="arrow-down">↕ JWT-secured REST API (Axios + Auto-Refresh)</div>
@@ -443,9 +443,9 @@ nav button.active,nav button:hover{background:var(--blue);color:#fff}
     #s8 .v .ic{background:rgba(139,92,246,.2);} #s8 .m .ic{background:rgba(59,130,246,.2);}
     #s8 .person .progress{margin-top:14px;background:rgba(255,255,255,.06);border-radius:999px;height:6px;overflow:hidden}
     #s8 .person .bar{height:100%;border-radius:999px}
-    #s8 .v .bar{background:linear-gradient(90deg,#8B5CF6,#3B82F6);width:80%}
-    #s8 .m .bar{background:linear-gradient(90deg,#3B82F6,#06B6D4);width:80%}
-    #s8 .results{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    #s8 .v .bar{background:linear-gradient(90deg,#8B5CF6,#3B82F6);width:95%}
+    #s8 .m .bar{background:linear-gradient(90deg,#3B82F6,#06B6D4);width:95%}
+    #s8 .results{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
     #s8 .res-card{padding:16px;border-radius:12px;border:1px solid var(--border);background:var(--card);text-align:center}
     #s8 .res-card .ic{font-size:24px;margin-bottom:8px}
     #s8 .res-card h4{font-size:13px;font-weight:700;margin-bottom:4px}
@@ -479,9 +479,10 @@ nav button.active,nav button:hover{background:var(--blue);color:#fff}
     </div>
   </div>
   <div class="results">
-    <div class="res-card"><div class="ic">✅</div><h4>Auth System</h4><p>Register, Login, Logout with silent JWT refresh on expiry</p></div>
-    <div class="res-card"><div class="ic">🗺️</div><h4>AI Itineraries</h4><p>Structured day-by-day plans with budget breakdown &amp; map export</p></div>
-    <div class="res-card"><div class="ic">🌤️</div><h4>Live Weather</h4><p>OpenWeather 5-day forecast injected into every trip plan</p></div>
+    <div class="res-card"><div class="ic">🤖</div><h4>NLP Chatbot</h4><p>Interactive AI travel assistant via Groq LLM</p></div>
+    <div class="res-card"><div class="ic">📊</div><h4>Visual Data</h4><p>Dynamic budget charts &amp; UI breakdowns</p></div>
+    <div class="res-card"><div class="ic">🗺️</div><h4>AI Itineraries</h4><p>Structured day-by-day plans with map export</p></div>
+    <div class="res-card"><div class="ic">🌤️</div><h4>Live Weather</h4><p>Real-time OpenWeather dashboard integration</p></div>
   </div>
 </div>
 

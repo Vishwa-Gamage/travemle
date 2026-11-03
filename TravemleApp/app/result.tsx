@@ -340,31 +340,130 @@ export default function ResultScreen() {
           <Text style={styles.mapButtonText}>View Route on Google Maps</Text>
         </TouchableOpacity>
 
-        {/* ── 5. Daily Itinerary ──────────────────────────────────────────── */}
-        <Text style={styles.sectionTitle}>Daily Itinerary</Text>
-        {(plan.activities || []).map((activity: any, index: number) => (
-          <View key={index} style={styles.activityCard}>
-            <View style={styles.timeColumn}>
-              <Text style={styles.timeText}>{activity.time}</Text>
-              {index < plan.activities.length - 1 && <View style={styles.line} />}
+        {/* ── 4.5. Recommended Accommodation ────────────────────────────── */}
+        {plan.recommended_accommodation && (
+          <View style={styles.hotelCard}>
+            <View style={styles.hotelCardHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Ionicons name="bed" size={20} color="#007AFF" />
+                <Text style={styles.hotelCardTitle}>Recommended Accommodation</Text>
+              </View>
+              <View style={styles.hotelTypeBadge}>
+                <Text style={styles.hotelTypeBadgeText}>
+                  {String(plan.recommended_accommodation.accommodation_type || plan.recommended_accommodation.type || 'Hotel').replace('_', ' ').toUpperCase()}
+                </Text>
+              </View>
             </View>
-            <View style={styles.detailsColumn}>
-              <Text style={styles.locationName}>{activity.location_name}</Text>
-              <Text style={styles.description}>{activity.description}</Text>
-              <View style={styles.dayBadge}>
-                <Text style={styles.dayBadgeText}>{activity.day}</Text>
+
+            <View style={styles.hotelCardBody}>
+              <View style={styles.hotelTopRow}>
+                <Text style={styles.hotelName}>
+                  {String(plan.recommended_accommodation.name || '').replace(/\s+\d+$/, '').trim() || 'Cozy Local Stay'}
+                </Text>
+                <View style={styles.hotelRatingBadge}>
+                  <Ionicons name="star" size={13} color="#f59e0b" />
+                  <Text style={styles.hotelRatingText}>
+                    {plan.recommended_accommodation.rating ? Number(plan.recommended_accommodation.rating).toFixed(1) : '4.0'}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={styles.hotelPricePerNight}>
+                LKR {Number(plan.recommended_accommodation.price_per_night || 0).toLocaleString()}
+                <Text style={styles.hotelPriceSub}> / night</Text>
+              </Text>
+
+              {/* Total cost for trip duration */}
+              <View style={styles.hotelStayCostBox}>
+                <Ionicons name="calendar-outline" size={14} color="#64748b" />
+                <Text style={styles.hotelStayCostText}>
+                  Estimated total for {plan.duration || 'trip'}: <Text style={{ fontWeight: '700', color: '#0f172a' }}>
+                    LKR {(Number(plan.recommended_accommodation.price_per_night || 0) * (parseInt(plan.duration) || 1)).toLocaleString()}
+                  </Text>
+                </Text>
               </View>
             </View>
           </View>
-        ))}
+        )}
+
+        {/* ── 5. Daily Itinerary ──────────────────────────────────────────── */}
+        <Text style={styles.sectionTitle}>Daily Itinerary</Text>
+        {(() => {
+          // Group activities by day label (e.g. "Day 1", "Day 2")
+          const dayMap: Record<string, { date: string; items: any[] }> = {};
+          (plan.activities || []).forEach((act: any) => {
+            const key = act.day || 'Day 1';
+            if (!dayMap[key]) dayMap[key] = { date: act.date || '', items: [] };
+            dayMap[key].items.push(act);
+          });
+
+          const formatDate = (iso: string) => {
+            if (!iso) return '';
+            try {
+              const [y, m, d] = iso.split('-').map(Number);
+              const dt = new Date(y, m - 1, d);
+              return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            } catch { return iso; }
+          };
+
+          // Use the 'type' field from backend: checkin → 🏨, checkout → 🚗, activity → ⏰
+          const getRowIcon = (activity: any) => {
+            if (activity.type === 'checkin')  return '🏨';
+            if (activity.type === 'checkout') return '🚗';
+            return '⏰';
+          };
+
+          return Object.entries(dayMap).map(([dayLabel, { date, items }], dayIdx) => (
+            <View key={dayIdx} style={styles.dayCard}>
+              {/* Day header bar */}
+              <View style={styles.dayCardHeader}>
+                <Text style={styles.dayCardNum}>{dayLabel}</Text>
+                {date ? (
+                  <Text style={styles.dayCardDate}>{formatDate(date)}</Text>
+                ) : null}
+              </View>
+
+              {/* Schedule rows — "8:00 AM  Visit Nine Arch Bridge" */}
+              {items.map((activity: any, idx: number) => (
+                <View
+                  key={idx}
+                  style={[
+                    styles.scheduleRow,
+                    idx < items.length - 1 && styles.scheduleRowBorder,
+                  ]}
+                >
+                  {/* Time pill */}
+                  <View style={styles.scheduleTimePill}>
+                    <Text style={styles.scheduleTimeIcon}>
+                      {getRowIcon(activity)}
+                    </Text>
+                    <Text style={styles.scheduleTimeText}>{activity.time}</Text>
+                  </View>
+
+                  {/* Activity name + small subtitle */}
+                  <View style={styles.scheduleBody}>
+                    <Text style={styles.scheduleActivityName}>
+                      {activity.location_name}
+                    </Text>
+                    {activity.description ? (
+                      <Text style={styles.scheduleActivitySub}>
+                        {activity.description}
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+              ))}
+            </View>
+          ));
+        })()}
 
         {/* ── 6. Budget Breakdown + Market Validation ─────────────────────── */}
         {plan.budget_breakdown && (
           <View style={styles.budgetCard}>
             <View style={styles.budgetHeaderRow}>
               <Text style={styles.budgetTitle}>💰 Budget Breakdown</Text>
-              <View style={styles.aiEstimatedBadge}>
-                <Text style={styles.aiEstimatedText}>AI Generated</Text>
+              <View style={styles.calculatedBadge}>
+                <Text style={styles.calculatedText}>Calculated</Text>
               </View>
             </View>
 
@@ -544,23 +643,88 @@ const styles = StyleSheet.create({
   },
   mapButtonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 
-  // Itinerary
+  // ── Recommended Accommodation Card ───────────────────────────────────────
+  hotelCard: {
+    backgroundColor: '#fff', borderRadius: 16, marginBottom: 20,
+    borderWidth: 1.5, borderColor: '#dbeafe', overflow: 'hidden', ...shadow(3, 0.08, 8),
+  },
+  hotelCardHeader: {
+    backgroundColor: '#eff6ff', paddingHorizontal: 16, paddingVertical: 12,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    borderBottomWidth: 1, borderBottomColor: '#dbeafe',
+  },
+  hotelCardTitle:     { fontSize: 15, fontWeight: '700', color: '#1e3a8a' },
+  hotelTypeBadge:     { backgroundColor: '#007AFF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  hotelTypeBadgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
+  hotelCardBody:      { padding: 16 },
+  hotelTopRow:        { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
+  hotelName:          { fontSize: 17, fontWeight: '800', color: '#0f172a', flex: 1, marginRight: 8 },
+  hotelRatingBadge:   { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#fef3c7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
+  hotelRatingText:    { fontSize: 12, fontWeight: '800', color: '#b45309' },
+  hotelPricePerNight: { fontSize: 20, fontWeight: '800', color: '#007AFF', marginBottom: 10 },
+  hotelPriceSub:      { fontSize: 13, fontWeight: '500', color: '#64748b' },
+  hotelStayCostBox:   { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#f8fafc', padding: 10, borderRadius: 8 },
+  hotelStayCostText:  { fontSize: 12, color: '#64748b' },
+
+  // ── Daily Itinerary – card-per-day layout ────────────────────────────────
   sectionTitle:   { fontSize: 19, fontWeight: '800', marginBottom: 14, color: '#1a1a2e' },
-  activityCard:   { flexDirection: 'row', marginBottom: 16 },
-  timeColumn:     { alignItems: 'center', marginRight: 14, width: 52 },
-  timeText:       { fontWeight: '700', color: '#007AFF', fontSize: 12, textAlign: 'center' },
-  line:           { width: 2, flex: 1, backgroundColor: '#ddd', marginTop: 6 },
-  detailsColumn:  {
-    flex: 1, backgroundColor: '#fff', padding: 14, borderRadius: 14,
-    ...shadow(2, 0.05, 6),
+
+  // One card per day
+  dayCard: {
+    backgroundColor: '#fff', borderRadius: 16, marginBottom: 16,
+    overflow: 'hidden', ...shadow(2, 0.07, 8),
   },
-  locationName: { fontSize: 15, fontWeight: '700', marginBottom: 4, color: '#1a1a2e' },
-  description:  { color: '#666', fontSize: 13, lineHeight: 19 },
-  dayBadge:     {
-    marginTop: 8, alignSelf: 'flex-start',
-    backgroundColor: '#f0f4ff', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6,
+  dayCardHeader: {
+    backgroundColor: '#007AFF', paddingHorizontal: 16, paddingVertical: 12,
   },
-  dayBadgeText: { fontSize: 11, color: '#007AFF', fontWeight: '600' },
+  dayCardNum:  { fontSize: 16, fontWeight: '800', color: '#fff' },
+  dayCardDate: { fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 2, fontWeight: '500' },
+
+  // Activity row inside the day card
+  dayActivityRow: {
+    flexDirection: 'row', alignItems: 'flex-start',
+    paddingHorizontal: 16, paddingVertical: 14, gap: 14,
+  },
+  dayActivityRowBorder: { borderBottomWidth: 1, borderBottomColor: '#f0f4ff' },
+
+  // ── Schedule row styles (replaces old time-label column) ──────────────
+  scheduleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 12,
+  },
+  scheduleRowBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f4ff',
+  },
+  scheduleTimePill: {
+    alignItems: 'center',
+    width: 72,
+    paddingTop: 2,
+  },
+  scheduleTimeIcon: { fontSize: 16, marginBottom: 3 },
+  scheduleTimeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#007AFF',
+    textAlign: 'center',
+    letterSpacing: 0.2,
+  },
+  scheduleBody: { flex: 1 },
+  scheduleActivityName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1a1a2e',
+    marginBottom: 2,
+    lineHeight: 20,
+  },
+  scheduleActivitySub: {
+    fontSize: 11,
+    color: '#888',
+    lineHeight: 16,
+  },
 
   // Budget
   budgetCard: {
@@ -569,8 +733,8 @@ const styles = StyleSheet.create({
   },
   budgetHeaderRow:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
   budgetTitle:       { color: '#fff', fontSize: 18, fontWeight: '800' },
-  aiEstimatedBadge:  { backgroundColor: 'rgba(74,222,128,0.2)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: '#4ade80' },
-  aiEstimatedText:   { color: '#4ade80', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+  calculatedBadge:  { backgroundColor: 'rgba(59,130,246,0.2)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: '#60a5fa' },
+  calculatedText:   { color: '#93c5fd', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
   breakdownContainer: { gap: 14 },
   budgetRow:         { flexDirection: 'column', gap: 6 },
   budgetRowHeader:   { flexDirection: 'row', justifyContent: 'space-between' },
