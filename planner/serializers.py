@@ -31,7 +31,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['default_budget', 'default_travel_mode', 'interests_csv',
+        fields = ['default_budget', 'default_passengers', 'default_travel_mode', 'interests_csv',
                   'food_preferences', 'accommodation_preferences', 'activity_preferences']
 
 
@@ -39,6 +39,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
 # validation. Previously MeView.put did bare manual extraction which caused
 # unhandled server exceptions on invalid input (e.g. budget="abc").
 class ProfileUpdateSerializer(serializers.Serializer):
+    default_passengers = serializers.IntegerField(
+        min_value=1,
+        max_value=50,
+        required=False,
+        default=1,
+        error_messages={'min_value': 'Passengers must be at least 1.'}
+    )
     default_budget = serializers.IntegerField(
         min_value=0,
         max_value=10_000_000,
@@ -103,7 +110,7 @@ class TripPlanSerializer(serializers.ModelSerializer):
             'id', 'user', 'origin', 'destination_city', 'destination_country',
             'start_date', 'end_date', 'interests',
             'food_preferences', 'accommodation_preferences', 'activity_preferences',
-            'budget', 'travel_mode',
+            'budget', 'passengers', 'travel_mode',
             'plan_json', 'weather_summary', 'map_url', 'created_at', 'duration_days'
         ]
         read_only_fields = ['user', 'created_at']

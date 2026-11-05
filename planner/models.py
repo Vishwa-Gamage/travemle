@@ -6,6 +6,7 @@ from django.dispatch import receiver
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     default_budget = models.IntegerField(default=20000)
+    default_passengers = models.PositiveIntegerField(default=1)
     default_travel_mode = models.CharField(max_length=20, choices=[('Car', 'Car'), ('Bus', 'Bus'), ('Train', 'Train')], default='Bus')
     interests_csv = models.CharField(max_length=500, blank=True, default='')
     food_preferences = models.CharField(max_length=500, blank=True, default='')
@@ -71,6 +72,7 @@ class TripPlan(models.Model):
     accommodation_preferences = models.CharField(max_length=500, blank=True, default='')
     activity_preferences = models.CharField(max_length=500, blank=True, default='')
     budget = models.IntegerField()
+    passengers = models.PositiveIntegerField(default=1)
     travel_mode = models.CharField(max_length=20, choices=TRAVEL_MODE_CHOICES, default='Car')
     plan_json = models.JSONField()          # Full AI-generated plan
     weather_summary = models.CharField(max_length=500, blank=True)

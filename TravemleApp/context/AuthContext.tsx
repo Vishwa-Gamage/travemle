@@ -11,6 +11,7 @@ import api from '@/services/api';
 // everywhere (index.tsx, profile.tsx etc.)
 interface UserProfile {
   default_budget: number;
+  default_passengers?: number;
   default_travel_mode: string;
   interests_csv: string;
 }

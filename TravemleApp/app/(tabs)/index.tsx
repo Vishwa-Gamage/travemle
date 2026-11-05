@@ -37,6 +37,7 @@ export default function HomeScreen() {
   const [selectedAccommodationPreferences, setSelectedAccommodationPreferences] = useState<string[]>([]);
   const [selectedActivityPreferences, setSelectedActivityPreferences] = useState<string[]>([]);
   const [selectedMode, setSelectedMode]           = useState<string>('Bus');
+  const [passengers, setPassengers]               = useState<number>(1);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -54,6 +55,9 @@ export default function HomeScreen() {
       }
       if (user.profile.activity_preferences) {
         setSelectedActivityPreferences(user.profile.activity_preferences.split(',').map((s: string) => s.trim()));
+      }
+      if (user.profile.default_passengers) {
+        setPassengers(user.profile.default_passengers);
       }
     }
   }, [user]);
@@ -135,6 +139,7 @@ export default function HomeScreen() {
         accommodation_preferences: selectedAccommodationPreferences.join(', '),
         activity_preferences: selectedActivityPreferences.join(', '),
         budget:      parseInt(budget) || 20000,
+        passengers:  passengers,
         travel_mode: selectedMode,
       });
 
@@ -286,6 +291,39 @@ export default function HomeScreen() {
               />
             </>
           )}
+
+          {/* Passengers / Travellers */}
+          <Text style={styles.label}>Passengers</Text>
+          <View style={styles.passengerContainer}>
+            <View style={styles.passengerLeft}>
+              <Ionicons name="people" size={22} color="#007AFF" style={styles.icon} />
+              <View>
+                <Text style={styles.passengerMainText}>
+                  {passengers} {passengers === 1 ? 'Passenger' : 'Passengers'}
+                </Text>
+                <Text style={styles.passengerSubText}>
+                  {passengers === 1 ? 'Solo trip' : (passengers === 2 ? 'Couple / Pair' : (passengers <= 5 ? 'Family' : 'Group'))}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.counterRow}>
+              <TouchableOpacity
+                style={[styles.counterBtn, passengers <= 1 && styles.counterBtnDisabled]}
+                onPress={() => setPassengers(Math.max(1, passengers - 1))}
+                disabled={passengers <= 1}
+              >
+                <Ionicons name="remove" size={18} color={passengers <= 1 ? '#bbb' : '#007AFF'} />
+              </TouchableOpacity>
+              <Text style={styles.counterValue}>{passengers}</Text>
+              <TouchableOpacity
+                style={[styles.counterBtn, passengers >= 20 && styles.counterBtnDisabled]}
+                onPress={() => setPassengers(Math.min(20, passengers + 1))}
+                disabled={passengers >= 20}
+              >
+                <Ionicons name="add" size={18} color={passengers >= 20 ? '#bbb' : '#007AFF'} />
+              </TouchableOpacity>
+            </View>
+          </View>
 
           {/* Budget */}
           <Text style={styles.label}>Budget (LKR)</Text>
@@ -486,4 +524,58 @@ const styles = StyleSheet.create({
   },
   overlayText: { marginTop: 16, fontSize: 16, fontWeight: '600', color: '#333' },
   overlaySub:  { marginTop: 6, fontSize: 12, color: '#888' },
+
+  // Passenger counter
+  passengerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#007AFF',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  passengerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  passengerMainText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a1a2e',
+  },
+  passengerSubText: {
+    fontSize: 11,
+    color: '#64748b',
+    marginTop: 1,
+  },
+  counterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  counterBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#eff6ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+  },
+  counterBtnDisabled: {
+    backgroundColor: '#f1f5f9',
+    borderColor: '#e2e8f0',
+  },
+  counterValue: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#007AFF',
+    minWidth: 22,
+    textAlign: 'center',
+  },
 });

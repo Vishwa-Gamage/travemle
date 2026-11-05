@@ -143,9 +143,12 @@ export default function ResultScreen() {
 
   const calculateTotal = () => {
     if (!plan.budget_breakdown) return '0';
+    if (plan.budget_breakdown.total) {
+      return Number(plan.budget_breakdown.total).toLocaleString();
+    }
     let total = 0;
     Object.entries(plan.budget_breakdown).forEach(([key, value]) => {
-      if (key !== 'total') {
+      if (key !== 'total' && key !== 'per_person') {
         const amount = parseFloat(String(value).replace(/[^0-9.]/g, ''));
         if (!isNaN(amount)) total += amount;
       }
@@ -170,10 +173,26 @@ export default function ResultScreen() {
 
         {/* ── 1. Trip Summary ─────────────────────────────────────────────── */}
         <View style={styles.summaryCard}>
-          <Text style={styles.tripTitle}>{plan.title}</Text>
-          <View style={styles.durationRow}>
-            <Ionicons name="calendar-outline" size={14} color="#888" />
-            <Text style={styles.duration}>{plan.duration}</Text>
+          <View style={styles.summaryTopRow}>
+            <Text style={styles.tripTitle}>{plan.title}</Text>
+            {plan.passenger_label && (
+              <View style={styles.passengerBadge}>
+                <Ionicons name="people" size={12} color="#007AFF" />
+                <Text style={styles.passengerBadgeText}>{plan.passenger_label}</Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.summaryMetaRow}>
+            <View style={styles.durationRow}>
+              <Ionicons name="calendar-outline" size={14} color="#888" />
+              <Text style={styles.duration}>{plan.duration}</Text>
+            </View>
+            {plan.rooms_needed && (
+              <View style={styles.durationRow}>
+                <Ionicons name="bed-outline" size={14} color="#888" />
+                <Text style={styles.duration}>{plan.rooms_needed} {plan.rooms_needed === 1 ? 'Room' : 'Rooms'}</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -185,10 +204,17 @@ export default function ResultScreen() {
               <Ionicons name="partly-sunny" size={20} color="#FFD700" />
               <Text style={styles.weatherTitle}>Trip Weather Forecast</Text>
             </View>
-            <View style={styles.liveBadgeSmall}>
-              <View style={styles.liveDot} />
-              <Text style={styles.liveBadgeSmallText}>LIVE</Text>
-            </View>
+            {weatherDays.some(d => d.is_climate_avg) ? (
+              <View style={[styles.liveBadgeSmall, { backgroundColor: '#eff6ff' }]}>
+                <Ionicons name="calendar" size={11} color="#007AFF" />
+                <Text style={[styles.liveBadgeSmallText, { color: '#007AFF' }]}>CLIMATE FORECAST</Text>
+              </View>
+            ) : (
+              <View style={styles.liveBadgeSmall}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveBadgeSmallText}>LIVE 5-DAY</Text>
+              </View>
+            )}
           </View>
 
           {weatherDays.length > 0 ? (
@@ -218,11 +244,13 @@ export default function ResultScreen() {
                         <View style={styles.rainRow}>
                           <Ionicons name="rainy-outline" size={11} color={getRainColor(day.rain_pct)} />
                           <Text style={[styles.rainText, { color: getRainColor(day.rain_pct) }]}>
-                            {day.rain_pct}%
+                            {day.rain_pct}% rain
                           </Text>
                         </View>
-                        {(day.humidity !== null) && (
-                          <Text style={styles.humidityText}>💧 {day.humidity}%</Text>
+                        {day.is_climate_avg && (
+                          <View style={styles.climateTag}>
+                            <Text style={styles.climateTagText}>Seasonal</Text>
+                          </View>
                         )}
                       </>
                     ) : (
@@ -373,14 +401,22 @@ export default function ResultScreen() {
                 <Text style={styles.hotelPriceSub}> / night</Text>
               </Text>
 
-              {/* Total cost for trip duration */}
+              {/* Total cost for trip duration & rooms */}
               <View style={styles.hotelStayCostBox}>
-                <Ionicons name="calendar-outline" size={14} color="#64748b" />
-                <Text style={styles.hotelStayCostText}>
-                  Estimated total for {plan.duration || 'trip'}: <Text style={{ fontWeight: '700', color: '#0f172a' }}>
-                    LKR {(Number(plan.recommended_accommodation.price_per_night || 0) * (parseInt(plan.duration) || 1)).toLocaleString()}
+                <Ionicons name="calculator-outline" size={15} color="#007AFF" />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.hotelStayCostText}>
+                    {plan.rooms_needed ? `${plan.rooms_needed} room${plan.rooms_needed > 1 ? 's' : ''} × ` : ''}
+                    {plan.duration || 'trip'} @ LKR {Number(plan.recommended_accommodation.price_per_night || 0).toLocaleString()}/night
                   </Text>
-                </Text>
+                  <Text style={styles.hotelTotalHighlight}>
+                    Total Accommodation: LKR {(
+                      plan.budget_breakdown?.accommodation
+                        ? Number(plan.budget_breakdown.accommodation).toLocaleString()
+                        : (Number(plan.recommended_accommodation.price_per_night || 0) * (parseInt(plan.duration) || 1) * (plan.rooms_needed || 1)).toLocaleString()
+                    )}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
@@ -415,12 +451,27 @@ export default function ResultScreen() {
 
           return Object.entries(dayMap).map(([dayLabel, { date, items }], dayIdx) => (
             <View key={dayIdx} style={styles.dayCard}>
-              {/* Day header bar */}
+              {/* Day header bar with weather indicator */}
               <View style={styles.dayCardHeader}>
-                <Text style={styles.dayCardNum}>{dayLabel}</Text>
-                {date ? (
-                  <Text style={styles.dayCardDate}>{formatDate(date)}</Text>
-                ) : null}
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.dayCardNum}>{dayLabel}</Text>
+                  {date ? (
+                    <Text style={styles.dayCardDate}>{formatDate(date)}</Text>
+                  ) : null}
+                </View>
+                {(() => {
+                  const dayWeather = weatherDays.find(w => w.day_num === dayLabel || w.date === date);
+                  if (!dayWeather || !dayWeather.available) return null;
+                  return (
+                    <View style={styles.itineraryDayWeatherPill}>
+                      <Text style={{ fontSize: 16 }}>{dayWeather.emoji}</Text>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.itineraryDayWeatherTemp}>{dayWeather.temp}°C</Text>
+                        <Text style={styles.itineraryDayWeatherRain}>🌧️ {dayWeather.rain_pct}%</Text>
+                      </View>
+                    </View>
+                  );
+                })()}
               </View>
 
               {/* Schedule rows — "8:00 AM  Visit Nine Arch Bridge" */}
@@ -457,42 +508,116 @@ export default function ResultScreen() {
           ));
         })()}
 
-        {/* ── 6. Budget Breakdown + Market Validation ─────────────────────── */}
+        {/* ── 6. Budget Breakdown (Simplified & Friendly Card) ─────────────── */}
         {plan.budget_breakdown && (
           <View style={styles.budgetCard}>
+            {/* Header */}
             <View style={styles.budgetHeaderRow}>
-              <Text style={styles.budgetTitle}>💰 Budget Breakdown</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={{ fontSize: 22 }}>💰</Text>
+                <View>
+                  <Text style={styles.budgetTitle}>Trip Cost Estimate</Text>
+                  <Text style={styles.budgetSubtitle}>
+                    {plan.passengers || 1} {(plan.passengers || 1) === 1 ? 'Person' : 'People'} · {plan.duration || 'Trip'}
+                  </Text>
+                </View>
+              </View>
               <View style={styles.calculatedBadge}>
-                <Text style={styles.calculatedText}>Calculated</Text>
+                <Ionicons name="sparkles" size={12} color="#93c5fd" />
+                <Text style={styles.calculatedText}>ESTIMATE</Text>
               </View>
             </View>
 
-            {/* AI breakdown bars */}
-            <View style={styles.breakdownContainer}>
-              {Object.entries(plan.budget_breakdown).map(([key, value], index) => {
-                if (key === 'total') return null;
-                const totalAmt = parseFloat(String(plan.budget_breakdown.total || calculateTotal()).replace(/[^0-9.]/g, '')) || 1;
-                const cleanVal = parseFloat(String(value).replace(/[^0-9.]/g, '')) || 0;
-                const pct      = Math.min(100, Math.max(0, (cleanVal / totalAmt) * 100));
-                const colors   = ['#4ade80', '#60a5fa', '#f472b6', '#fbbf24', '#a78bfa'];
-                const barColor = colors[index % colors.length];
-                return (
-                  <View key={key} style={styles.budgetRow}>
-                    <View style={styles.budgetRowHeader}>
-                      <Text style={styles.budgetItem}>{key.charAt(0).toUpperCase() + key.slice(1)}</Text>
-                      <Text style={styles.budgetCost}>{String(value)} LKR</Text>
-                    </View>
-                    <View style={styles.chartBarBackground}>
-                      <View style={[styles.chartBarFill, { width: `${pct}%`, backgroundColor: barColor }]} />
-                    </View>
-                  </View>
-                );
-              })}
+            {/* Big Highlight Box: Total & Per-Person Cost */}
+            <View style={styles.budgetHighlightHero}>
+              <View style={styles.heroLeft}>
+                <Text style={styles.heroTotalLabel}>Total for Everyone</Text>
+                <Text style={styles.heroTotalValue}>LKR {calculateTotal()}</Text>
+              </View>
+              {(plan.passengers || 1) > 1 && plan.budget_breakdown?.per_person && (
+                <View style={styles.heroRight}>
+                  <Text style={styles.heroPerPersonLabel}>Each Person Pays</Text>
+                  <Text style={styles.heroPerPersonValue}>
+                    LKR {Number(plan.budget_breakdown.per_person).toLocaleString()}
+                  </Text>
+                </View>
+              )}
             </View>
-            <View style={styles.divider} />
-            <View style={styles.totalRow}>
-              <Text style={styles.budgetLabel}>Total Estimated Cost</Text>
-              <Text style={styles.budgetAmount}>LKR {calculateTotal()}</Text>
+
+            {/* Clear, Step-by-Step Expense List */}
+            <Text style={styles.expenseSectionTitle}>Where does the money go?</Text>
+            <View style={styles.breakdownCardsContainer}>
+              {/* 1. Accommodation */}
+              {plan.budget_breakdown?.accommodation ? (
+                <View style={styles.expenseCardRow}>
+                  <View style={[styles.expenseIconWrap, { backgroundColor: '#eff6ff' }]}>
+                    <Text style={{ fontSize: 18 }}>🏨</Text>
+                  </View>
+                  <View style={styles.expenseDetailCol}>
+                    <Text style={styles.expenseName}>Stay & Hotel</Text>
+                    <Text style={styles.expenseSimpleMath}>
+                      {plan.rooms_needed || 1} room{(plan.rooms_needed || 1) > 1 ? 's' : ''} for {plan.duration || 'trip'}
+                    </Text>
+                  </View>
+                  <Text style={styles.expensePriceText}>
+                    LKR {Number(plan.budget_breakdown.accommodation).toLocaleString()}
+                  </Text>
+                </View>
+              ) : null}
+
+              {/* 2. Food & Dining */}
+              {plan.budget_breakdown?.food ? (
+                <View style={styles.expenseCardRow}>
+                  <View style={[styles.expenseIconWrap, { backgroundColor: '#fef3c7' }]}>
+                    <Text style={{ fontSize: 18 }}>🍽️</Text>
+                  </View>
+                  <View style={styles.expenseDetailCol}>
+                    <Text style={styles.expenseName}>Meals & Drinks</Text>
+                    <Text style={styles.expenseSimpleMath}>
+                      {(plan.passengers || 1) > 1 ? `${plan.passengers} people · ` : ''}3 meals/day
+                    </Text>
+                  </View>
+                  <Text style={styles.expensePriceText}>
+                    LKR {Number(plan.budget_breakdown.food).toLocaleString()}
+                  </Text>
+                </View>
+              ) : null}
+
+              {/* 3. Activities & Sightseeing */}
+              {plan.budget_breakdown?.activities ? (
+                <View style={styles.expenseCardRow}>
+                  <View style={[styles.expenseIconWrap, { backgroundColor: '#f0fdf4' }]}>
+                    <Text style={{ fontSize: 18 }}>🎟️</Text>
+                  </View>
+                  <View style={styles.expenseDetailCol}>
+                    <Text style={styles.expenseName}>Tickets & Activities</Text>
+                    <Text style={styles.expenseSimpleMath}>
+                      Sightseeing & entrance fees
+                    </Text>
+                  </View>
+                  <Text style={styles.expensePriceText}>
+                    LKR {Number(plan.budget_breakdown.activities).toLocaleString()}
+                  </Text>
+                </View>
+              ) : null}
+
+              {/* 4. Travel & Transport */}
+              {plan.budget_breakdown?.transport ? (
+                <View style={styles.expenseCardRow}>
+                  <View style={[styles.expenseIconWrap, { backgroundColor: '#faf5ff' }]}>
+                    <Text style={{ fontSize: 18 }}>🚗</Text>
+                  </View>
+                  <View style={styles.expenseDetailCol}>
+                    <Text style={styles.expenseName}>Transport & Fuel</Text>
+                    <Text style={styles.expenseSimpleMath}>
+                      Travel for the entire trip
+                    </Text>
+                  </View>
+                  <Text style={styles.expensePriceText}>
+                    LKR {Number(plan.budget_breakdown.transport).toLocaleString()}
+                  </Text>
+                </View>
+              ) : null}
             </View>
 
             {/* Market Validation Section */}
@@ -577,9 +702,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 18, padding: 18, marginBottom: 12,
     ...shadow(3, 0.08, 8),
   },
-  tripTitle:   { fontSize: 19, fontWeight: '800', color: '#007AFF', marginBottom: 6 },
+  tripTitle:   { fontSize: 19, fontWeight: '800', color: '#007AFF', flex: 1, marginRight: 8 },
+  summaryTopRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 },
+  summaryMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   durationRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   duration:    { color: '#888', fontSize: 13 },
+  passengerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#eff6ff',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+  },
+  passengerBadgeText: { fontSize: 11, fontWeight: '700', color: '#007AFF' },
+  perPersonSub: { fontSize: 11, color: '#64748b', marginTop: 2 },
 
   // Live Weather — multiday
   weatherCard: {
@@ -593,7 +733,7 @@ const styles = StyleSheet.create({
   liveBadgeSmallText:  { color: '#ef4444', fontSize: 10, fontWeight: '800' },
   weatherTempLarge:    { fontSize: 24, fontWeight: '800', color: '#0f172a', marginBottom: 2 },
   weatherDetailText:   { color: '#64748b', fontSize: 13, lineHeight: 20, marginBottom: 6 },
-  sourceText:          { fontSize: 10, color: '#94a3b8', fontStyle: 'italic', marginTop: 4 },
+  sourceText:          { fontSize: 10, color: '#64748b', fontStyle: 'italic', marginTop: 4 },
 
   // Day strip
   dayStripContainer: { paddingVertical: 10, paddingHorizontal: 2, gap: 10 },
@@ -610,14 +750,14 @@ const styles = StyleSheet.create({
   dayDesc:  { fontSize: 10, color: '#475569', textAlign: 'center', lineHeight: 13, marginBottom: 4 },
   rainRow:  { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 2 },
   rainText: { fontSize: 11, fontWeight: '700' },
-  humidityText: { fontSize: 10, color: '#94a3b8', marginTop: 2 },
+  humidityText: { fontSize: 10, color: '#64748b', marginTop: 2 },
   unavailableText: { fontSize: 10, color: '#bbb', textAlign: 'center', lineHeight: 14, marginTop: 6 },
 
   // Weather legend
   weatherLegend: { flexDirection: 'row', gap: 12, marginTop: 10, flexWrap: 'wrap' },
   legendItem:    { flexDirection: 'row', alignItems: 'center', gap: 4 },
   legendDot:     { width: 8, height: 8, borderRadius: 4 },
-  legendText:    { fontSize: 10, color: '#94a3b8' },
+  legendText:    { fontSize: 10, color: '#64748b' },
 
   // Season Card
   seasonCard: {
@@ -664,7 +804,9 @@ const styles = StyleSheet.create({
   hotelPricePerNight: { fontSize: 20, fontWeight: '800', color: '#007AFF', marginBottom: 10 },
   hotelPriceSub:      { fontSize: 13, fontWeight: '500', color: '#64748b' },
   hotelStayCostBox:   { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#f8fafc', padding: 10, borderRadius: 8 },
-  hotelStayCostText:  { fontSize: 12, color: '#64748b' },
+  hotelStayCostText:  { fontSize: 11, color: '#64748b' },
+  hotelTotalHighlight: { fontSize: 13, fontWeight: '700', color: '#0f172a', marginTop: 2 },
+  budgetFormulaSub:   { fontSize: 10, color: '#64748b', marginTop: 1 },
 
   // ── Daily Itinerary – card-per-day layout ────────────────────────────────
   sectionTitle:   { fontSize: 19, fontWeight: '800', marginBottom: 14, color: '#1a1a2e' },
@@ -676,7 +818,20 @@ const styles = StyleSheet.create({
   },
   dayCardHeader: {
     backgroundColor: '#007AFF', paddingHorizontal: 16, paddingVertical: 12,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
   },
+  itineraryDayWeatherPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: 8,
+  },
+  itineraryDayWeatherTemp: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  itineraryDayWeatherRain: { color: 'rgba(255,255,255,0.9)', fontSize: 10, fontWeight: '600' },
+  climateTag: {
+    backgroundColor: '#dbeafe', paddingHorizontal: 6, paddingVertical: 2,
+    borderRadius: 4, marginTop: 4,
+  },
+  climateTagText: { fontSize: 9, fontWeight: '700', color: '#1e40af', textTransform: 'uppercase' },
   dayCardNum:  { fontSize: 16, fontWeight: '800', color: '#fff' },
   dayCardDate: { fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 2, fontWeight: '500' },
 
@@ -726,43 +881,88 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 
-  // Budget
+  // Budget Card (User-Friendly Light Theme)
   budgetCard: {
-    backgroundColor: '#1a1a2e', padding: 20, borderRadius: 18, marginTop: 10, marginBottom: 14,
-    ...shadow(4, 0.2, 10),
+    backgroundColor: '#ffffff',
+    padding: 20,
+    borderRadius: 20,
+    marginTop: 10,
+    marginBottom: 16,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    ...shadow(3, 0.08, 10),
   },
   budgetHeaderRow:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  budgetTitle:       { color: '#fff', fontSize: 18, fontWeight: '800' },
-  calculatedBadge:  { backgroundColor: 'rgba(59,130,246,0.2)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: '#60a5fa' },
-  calculatedText:   { color: '#93c5fd', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
-  breakdownContainer: { gap: 14 },
-  budgetRow:         { flexDirection: 'column', gap: 6 },
-  budgetRowHeader:   { flexDirection: 'row', justifyContent: 'space-between' },
-  budgetItem:        { color: '#e2e8f0', fontSize: 14, fontWeight: '600' },
-  budgetCost:        { color: '#fff', fontWeight: '600', fontSize: 14 },
-  chartBarBackground: { height: 8, backgroundColor: '#334155', borderRadius: 4, width: '100%', overflow: 'hidden' },
-  chartBarFill:      { height: '100%', borderRadius: 4 },
-  divider:           { height: 1, backgroundColor: '#334155', marginVertical: 18 },
-  totalRow:          { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  budgetLabel:       { color: '#94a3b8', fontSize: 14, fontWeight: '500' },
-  budgetAmount:      { color: '#4ade80', fontSize: 24, fontWeight: '800' },
+  budgetTitle:       { color: '#0f172a', fontSize: 18, fontWeight: '800' },
+  budgetSubtitle:    { color: '#64748b', fontSize: 12, marginTop: 1 },
+  calculatedBadge:   { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#eff6ff', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, borderWidth: 1, borderColor: '#bfdbfe' },
+  calculatedText:    { color: '#007AFF', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
+
+  // Hero Card for Total & Per-Person
+  budgetHighlightHero: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#f0f9ff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 18,
+    borderWidth: 1.5,
+    borderColor: '#bae6fd',
+  },
+  heroLeft: { flex: 1 },
+  heroTotalLabel: { fontSize: 12, fontWeight: '600', color: '#0284c7', textTransform: 'uppercase', letterSpacing: 0.4 },
+  heroTotalValue: { fontSize: 24, fontWeight: '900', color: '#0369a1', marginTop: 2 },
+  heroRight: {
+    borderLeftWidth: 1,
+    borderLeftColor: '#bae6fd',
+    paddingLeft: 16,
+    alignItems: 'flex-start',
+  },
+  heroPerPersonLabel: { fontSize: 11, fontWeight: '600', color: '#0284c7', textTransform: 'uppercase', letterSpacing: 0.4 },
+  heroPerPersonValue: { fontSize: 18, fontWeight: '800', color: '#0f172a', marginTop: 2 },
+
+  // Section title & cards
+  expenseSectionTitle: { fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.4 },
+  breakdownCardsContainer: { gap: 10, marginBottom: 14 },
+  expenseCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  expenseIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  expenseDetailCol: { flex: 1 },
+  expenseName: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
+  expenseSimpleMath: { fontSize: 11, color: '#64748b', marginTop: 2 },
+  expensePriceText: { fontSize: 15, fontWeight: '800', color: '#0f172a' },
 
   // Market Validation
   marketValidationBox: {
-    backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 12,
-    padding: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#f8fafc', borderRadius: 14,
+    padding: 14, borderWidth: 1, borderColor: '#e2e8f0', marginTop: 6,
   },
   marketHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
-  marketTitle:     { color: '#e2e8f0', fontSize: 13, fontWeight: '700', flex: 1 },
+  marketTitle:     { color: '#1e293b', fontSize: 13, fontWeight: '700', flex: 1 },
   tierBadge:       { backgroundColor: '#3b82f6', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
   tierBadgeText:   { color: '#fff', fontSize: 10, fontWeight: '700' },
-  marketNote:      { color: '#94a3b8', fontSize: 12, lineHeight: 17, marginBottom: 12 },
+  marketNote:      { color: '#64748b', fontSize: 12, lineHeight: 17, marginBottom: 12 },
   refRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start',
-    paddingVertical: 8, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', gap: 8,
+    paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#e2e8f0', gap: 8,
   },
   refLeft:     { flex: 1 },
-  refCategory: { color: '#e2e8f0', fontSize: 13, fontWeight: '600' },
+  refCategory: { color: '#1e293b', fontSize: 13, fontWeight: '600' },
   refRange:    { color: '#4ade80', fontSize: 12, fontWeight: '700', marginTop: 2 },
   refSource:   { color: '#64748b', fontSize: 10, flex: 1.2, textAlign: 'right', lineHeight: 14 },
 
@@ -809,5 +1009,5 @@ const styles = StyleSheet.create({
   rainAltRegionText: { color: '#c7d2fe', fontSize: 10, fontWeight: '700' },
   rainAltWeatherNote:{ color: '#a5b4fc', fontSize: 11, marginBottom: 3, lineHeight: 15 },
   rainAltReason:     { color: '#86efac', fontSize: 11, fontWeight: '600', marginBottom: 4 },
-  rainAltDesc:       { color: '#94a3b8', fontSize: 11, lineHeight: 15 },
+  rainAltDesc:       { color: '#64748b', fontSize: 11, lineHeight: 15 },
 });
