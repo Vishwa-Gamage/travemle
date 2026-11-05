@@ -528,11 +528,16 @@ export default function ResultScreen() {
               </View>
             </View>
 
-            {/* Big Highlight Box: Total & Per-Person Cost */}
+            {/* Big Highlight Box: Input Budget vs Planned Cost & Coverage Badge */}
             <View style={styles.budgetHighlightHero}>
               <View style={styles.heroLeft}>
-                <Text style={styles.heroTotalLabel}>Total for Everyone</Text>
+                <Text style={styles.heroTotalLabel}>Planned Trip Cost</Text>
                 <Text style={styles.heroTotalValue}>LKR {calculateTotal()}</Text>
+                {plan.input_budget ? (
+                  <Text style={styles.heroBudgetCapSub}>
+                    Your Budget: LKR {Number(plan.input_budget).toLocaleString()}
+                  </Text>
+                ) : null}
               </View>
               {(plan.passengers || 1) > 1 && plan.budget_breakdown?.per_person && (
                 <View style={styles.heroRight}>
@@ -543,6 +548,35 @@ export default function ResultScreen() {
                 </View>
               )}
             </View>
+
+            {/* Budget Health / Status Banner */}
+            {plan.input_budget ? (
+              <View style={[
+                styles.budgetStatusBanner,
+                plan.is_covered ? styles.budgetStatusSuccess : styles.budgetStatusWarning
+              ]}>
+                <Ionicons
+                  name={plan.is_covered ? "checkmark-circle" : "alert-circle"}
+                  size={18}
+                  color={plan.is_covered ? "#16a34a" : "#d97706"}
+                />
+                <View style={{ flex: 1 }}>
+                  <Text style={[
+                    styles.budgetStatusTitle,
+                    { color: plan.is_covered ? "#15803d" : "#b45309" }
+                  ]}>
+                    {plan.is_covered ? "Covered within your budget!" : "Exceeds your budget"}
+                  </Text>
+                  <Text style={styles.budgetStatusSub}>
+                    {plan.is_covered
+                      ? (plan.savings_or_buffer > 0
+                          ? `You will save ~LKR ${Number(plan.savings_or_buffer).toLocaleString()} as safety buffer.`
+                          : "This entire itinerary is fitted directly to your target budget.")
+                      : `Requires ~LKR ${Number(plan.budget_deficit).toLocaleString()} more for standard accommodation & meals.`}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
 
             {/* Clear, Step-by-Step Expense List */}
             <Text style={styles.expenseSectionTitle}>Where does the money go?</Text>
@@ -605,12 +639,16 @@ export default function ResultScreen() {
               {plan.budget_breakdown?.transport ? (
                 <View style={styles.expenseCardRow}>
                   <View style={[styles.expenseIconWrap, { backgroundColor: '#faf5ff' }]}>
-                    <Text style={{ fontSize: 18 }}>🚗</Text>
+                    <Text style={{ fontSize: 18 }}>
+                      {plan.preferred_transport === 'train' ? '🚆' : (plan.preferred_transport === 'bus' ? '🚌' : '🚗')}
+                    </Text>
                   </View>
                   <View style={styles.expenseDetailCol}>
-                    <Text style={styles.expenseName}>Transport & Fuel</Text>
+                    <Text style={styles.expenseName}>
+                      {plan.preferred_transport === 'bus' || plan.preferred_transport === 'train' ? 'Public Transport' : 'Transport & Fuel'}
+                    </Text>
                     <Text style={styles.expenseSimpleMath}>
-                      Travel for the entire trip
+                      {plan.budget_breakdown.transport_note || 'Travel for the entire trip'}
                     </Text>
                   </View>
                   <Text style={styles.expensePriceText}>
@@ -911,16 +949,45 @@ const styles = StyleSheet.create({
     borderColor: '#bae6fd',
   },
   heroLeft: { flex: 1 },
-  heroTotalLabel: { fontSize: 12, fontWeight: '600', color: '#0284c7', textTransform: 'uppercase', letterSpacing: 0.4 },
-  heroTotalValue: { fontSize: 24, fontWeight: '900', color: '#0369a1', marginTop: 2 },
+  heroTotalLabel: { fontSize: 11, fontWeight: '700', color: '#0284c7', textTransform: 'uppercase', letterSpacing: 0.4 },
+  heroTotalValue: { fontSize: 22, fontWeight: '900', color: '#0369a1', marginTop: 2 },
+  heroBudgetCapSub: { fontSize: 11, fontWeight: '600', color: '#0284c7', marginTop: 3 },
   heroRight: {
     borderLeftWidth: 1,
     borderLeftColor: '#bae6fd',
     paddingLeft: 16,
     alignItems: 'flex-start',
   },
-  heroPerPersonLabel: { fontSize: 11, fontWeight: '600', color: '#0284c7', textTransform: 'uppercase', letterSpacing: 0.4 },
+  heroPerPersonLabel: { fontSize: 11, fontWeight: '700', color: '#0284c7', textTransform: 'uppercase', letterSpacing: 0.4 },
   heroPerPersonValue: { fontSize: 18, fontWeight: '800', color: '#0f172a', marginTop: 2 },
+
+  // Budget Status Banner
+  budgetStatusBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+  },
+  budgetStatusSuccess: {
+    backgroundColor: '#f0fdf4',
+    borderColor: '#bbf7d0',
+  },
+  budgetStatusWarning: {
+    backgroundColor: '#fffbeb',
+    borderColor: '#fde68a',
+  },
+  budgetStatusTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  budgetStatusSub: {
+    fontSize: 11,
+    color: '#64748b',
+    marginTop: 1,
+  },
 
   // Section title & cards
   expenseSectionTitle: { fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.4 },

@@ -106,6 +106,55 @@ BUDGET_REFERENCE = {
 
 # ── 5. Helper functions ───────────────────────────────────────────────────────
 
+# Sri Lanka Road Network Distance Matrix (Origin ⇄ Destination in km)
+# Includes mountain winding factor (approx 1.25x - 1.4x of straight line)
+SRI_LANKA_ROAD_DISTANCES = {
+    ("colombo", "kandy"): 120,
+    ("colombo", "galle"): 125,
+    ("colombo", "ella"): 215,
+    ("colombo", "nuwara eliya"): 165,
+    ("colombo", "sigiriya"): 175,
+    ("colombo", "mirissa"): 150,
+    ("colombo", "bentota"): 80,
+    ("colombo", "yala"): 260,
+    ("colombo", "trincomalee"): 265,
+    ("colombo", "anuradhapura"): 205,
+    ("colombo", "dambulla"): 160,
+    ("colombo", "polonnaruwa"): 225,
+    ("colombo", "arugam bay"): 320,
+    ("colombo", "jaffna"): 395,
+    ("colombo", "negombo"): 38,
+    ("kandy", "nuwara eliya"): 78,
+    ("kandy", "ella"): 135,
+    ("kandy", "sigiriya"): 90,
+    ("galle", "mirissa"): 35,
+    ("galle", "ella"): 195,
+    ("galle", "yala"): 170,
+}
+
+def estimate_road_distance_km(orig: str, dest: str) -> int:
+    o = str(orig).lower().strip()
+    d = str(dest).lower().strip()
+    if (o, d) in SRI_LANKA_ROAD_DISTANCES:
+        return SRI_LANKA_ROAD_DISTANCES[(o, d)]
+    if (d, o) in SRI_LANKA_ROAD_DISTANCES:
+        return SRI_LANKA_ROAD_DISTANCES[(d, o)]
+    
+    # Haversine distance with Sri Lankan road curvature factor (~1.35x)
+    lat1, lon1 = get_coordinates(orig)
+    lat2, lon2 = get_coordinates(dest)
+    if lat1 and lat2:
+        import math as _m
+        R = 6371.0 # Earth radius in km
+        dlat = _m.radians(lat2 - lat1)
+        dlon = _m.radians(lon2 - lon1)
+        a = _m.sin(dlat / 2)**2 + _m.cos(_m.radians(lat1)) * _m.cos(_m.radians(lat2)) * _m.sin(dlon / 2)**2
+        c = 2 * _m.atan2(_m.sqrt(a), _m.sqrt(1 - a))
+        aerial_km = R * c
+        return max(35, round(aerial_km * 1.35))
+    return 150 # Safe default for Sri Lanka travel
+
+
 def get_coordinates(city_name: str):
     city_clean = city_name.lower().strip()
     if city_clean in CITY_BACKUP:
@@ -1052,8 +1101,8 @@ def call_ml_service(city, country, origin, start_date, end_date, interests,
         "shopping": ("Local Artisan Market & Crafts Bazaar", "Browse authentic handicrafts, aromatic spices, handloomed textiles, and unique local souvenirs.")
     }
 
-        # Helper function to pick a realistic hotel matching city & budget tier
-    def pick_real_hotel(city_name: str, total_budget: float, trip_len: int, acc_preference: str = ""):
+        # Helper function to pick a realistic hotel strictly within user's accommodation budget cap
+    def pick_real_hotel(city_name: str, total_budget: float, trip_len: int, num_passengers: int = 1, acc_preference: str = ""):
         c_clean = str(city_name).lower().strip()
         matched_city = None
         for k in DESTINATION_REAL_HOTELS:
@@ -1061,35 +1110,58 @@ def call_ml_service(city, country, origin, start_date, end_date, interests,
                 matched_city = k
                 break
 
-        # Calculate affordable nightly rate (assume 35%-45% of daily budget is for hotel)
-        daily_cap = (float(total_budget) / max(trip_len, 1)) * 0.42
+        # Sizing: required rooms
+        r_needed = max(1, _math.ceil(num_passengers / 2))
 
-        # Classify user's budget tier
+        # Total accommodation budget cap: allocate up to 40% of total budget for accommodation
+        acc_budget_total = float(total_budget) * 0.40
+        # Nightly cap per room
+        nightly_cap_per_room = acc_budget_total / max(trip_len * r_needed, 1)
+
         pref_str = str(acc_preference).lower()
-        if "luxury" in pref_str or "resort" in pref_str or daily_cap >= 25000:
-            tier = "luxury"
-        elif "budget" in pref_str or "hostel" in pref_str or daily_cap < 9000:
-            tier = "budget"
+        if "luxury" in pref_str or "resort" in pref_str or nightly_cap_per_room >= 26000:
+            preferred_tier = "luxury"
+        elif "budget" in pref_str or "hostel" in pref_str or nightly_cap_per_room < 10000:
+            preferred_tier = "budget"
         else:
-            tier = "mid"
+            preferred_tier = "mid"
 
         if matched_city and matched_city in DESTINATION_REAL_HOTELS:
             city_hotels = DESTINATION_REAL_HOTELS[matched_city]
-            options = city_hotels.get(tier) or city_hotels.get("mid") or city_hotels.get("budget", [])
-            if options:
-                selected = options[0]
-                alt_options = [h for h in options[1:]] + [h for t, hl in city_hotels.items() if t != tier for h in hl][:2]
-                return selected, alt_options, tier
+            # Flatten all available hotels for this city sorted by price ascending
+            all_city_hotels = []
+            for t_name in ["budget", "mid", "luxury"]:
+                for h_item in city_hotels.get(t_name, []):
+                    all_city_hotels.append({**h_item, "_tier": t_name})
 
-        # Generic realistic fallback if city not in curated list
-        tier_price = 6500 if tier == "budget" else (15000 if tier == "mid" else 32000)
+            # Filter hotels whose nightly price fits within nightly_cap_per_room
+            affordable = [h for h in all_city_hotels if h["price"] <= nightly_cap_per_room * 1.15]
+
+            if affordable:
+                # If affordable options exist, pick the best one matching preferred tier
+                preferred_matches = [h for h in affordable if h["_tier"] == preferred_tier]
+                selected = preferred_matches[-1] if preferred_matches else affordable[-1]
+                tier = selected["_tier"]
+                alt_options = [h for h in affordable if h["name"] != selected["name"]][:2]
+                return selected, alt_options, tier
+            else:
+                # If budget is tight, pick the absolute cheapest available hotel in the city
+                cheapest_hotel = min(all_city_hotels, key=lambda x: x["price"])
+                tier = "budget"
+                alt_options = [h for h in all_city_hotels if h["name"] != cheapest_hotel["name"]][:2]
+                return cheapest_hotel, alt_options, tier
+
+        # Generic realistic fallback
+        tier = preferred_tier
+        tier_price = min(round(nightly_cap_per_room), 6000 if tier == "budget" else (14000 if tier == "mid" else 30000))
+        tier_price = max(4000, tier_price)
         selected = {
-            "name": f"{city_name.title()} Heritage Hotel",
+            "name": f"{city_name.title()} Heritage Stay",
             "type": "hotel" if tier != "luxury" else "resort",
             "price": tier_price,
-            "rating": 4.3,
-            "features": ["wifi", "breakfast", "air_conditioning"],
-            "reason": f"Popular and well-rated {tier} stay situated close to {city_name.title()} center."
+            "rating": 4.2,
+            "features": ["wifi", "breakfast"],
+            "reason": f"Comfortable {tier} accommodation selected to strictly fit within your allocated budget."
         }
         return selected, [], tier
 
@@ -1158,8 +1230,9 @@ def call_ml_service(city, country, origin, start_date, end_date, interests,
     except Exception:
         start_dt = datetime.today()
 
-    # 1. Select Verified Real Accommodation matching user's city and budget tier
-    picked_hotel, alt_hotels, detected_tier = pick_real_hotel(dest_name, budget, trip_days, acc_prefs)
+    # 1. Select Verified Real Accommodation strictly fitted to user's input budget and passenger count
+    rooms_needed = max(1, _math.ceil(passengers / 2))
+    picked_hotel, alt_hotels, detected_tier = pick_real_hotel(dest_name, budget, trip_days, passengers, acc_prefs)
     clean_hotel_name = picked_hotel["name"]
     hotel_type = acc_type_label(picked_hotel.get("type", "hotel"))
     hotel_price_val = int(picked_hotel.get("price", 8500))
@@ -1332,27 +1405,80 @@ def call_ml_service(city, country, origin, start_date, end_date, interests,
     day_order = {f"Day {d}": d for d in range(1, trip_days + 1)}
     activity_entries.sort(key=lambda x: (day_order.get(x["day"], 99), time_to_minutes(x["time"])))
 
-    # 7. Real Accurate Budget Calculation scaled by passengers
-    # Standard hotel rooms accommodate 2 guests; calculate required rooms
-    rooms_needed = max(1, _math.ceil(passengers / 2))
+    # 7. Strict Budget-Constrained Itinerary & Cost Allocation
+    user_input_budget = float(budget) if budget else 20000.0
+
+    # A. Accommodation cost based on selected verified hotel
     actual_acc_total = round(hotel_price_val * trip_days * rooms_needed)
 
-    # Activity fees scale per passenger (entry tickets, tours, adventure)
-    actual_act_total = sum(round(act.get("cost", 0) * passengers) for act in activities)
+    # B. Realistic Transport & Fuel Cost Calibration (Petrol LKR 480/L)
+    one_way_km = estimate_road_distance_km(origin or "Colombo", dest_name)
+    # Round trip (to & from) + local daily sightseeing travel (~30km/day)
+    total_travel_km = (one_way_km * 2) + (trip_days * 30)
 
-    # Food expense scales directly with number of passengers (~LKR 2,500/day/person)
-    food_est         = round(trip_days * 2500 * passengers)
-
-    # Transport: shared vehicle or per-person public transport
     if preferred_transport in ("bus", "train"):
-        transport_est = round(trip_days * 800 * passengers)
+        # Intercity bus / train tickets + local tuk-tuk / city buses
+        # Bus/Train: ~LKR 1,000 - 1,500 per passenger for long-distance + local
+        transport_est = round((one_way_km * 2 * 3.5 * passengers) + (trip_days * 450 * passengers))
+        transport_est = max(round(trip_days * 800 * passengers), transport_est)
+        transport_note = f"Public Transport ({mode}) for {passengers} pax · ~{total_travel_km} km total"
     else:
-        # Car/Van base rental with minor scaling for larger vehicle/fuel
-        vehicle_multiplier = 1.0 if passengers <= 4 else (1.4 if passengers <= 8 else 1.8)
-        transport_est = round(trip_days * 3500 * vehicle_multiplier)
+        # Car / Van: Realistic Fuel Consumption Calculation (Petrol LKR 480/L)
+        # Standard car fuel economy in Sri Lanka: ~11-12 km/L on long distance / hills
+        fuel_price_per_liter = 480.0
+        car_km_per_liter = 11.5 if passengers <= 4 else 8.5 # Van consumes more
+        liters_needed = total_travel_km / car_km_per_liter
+        fuel_cost = round(liters_needed * fuel_price_per_liter)
+
+        # Express Highway toll fees (if route utilizes E01 / E02 / E04, ~LKR 800 - 1,600 round trip)
+        highway_tolls = 1200 if any(c in f"{origin} {dest_name}".lower() for c in ["galle", "matara", "mirissa", "bentota", "kandy"]) else 0
+
+        # Total realistic transport
+        transport_est = fuel_cost + highway_tolls
+        transport_note = f"Estimated Fuel for ~{total_travel_km} km @ LKR {int(fuel_price_per_liter)}/L ({liters_needed:.1f}L needed)"
+
+
+    # C. Calculate remaining available budget for Food and Activities
+    fixed_costs = actual_acc_total + transport_est
+    remaining_for_food_and_acts = max(0, user_input_budget - fixed_costs)
+
+    # Food daily rate: standard LKR 2,000 - 2,800/person, but dynamically scaled if budget is tight
+    ideal_food_per_day = 2200
+    if remaining_for_food_and_acts > 0:
+        max_possible_food = remaining_for_food_and_acts * 0.65
+        calibrated_food_daily = min(ideal_food_per_day, max(1200, max_possible_food / max(trip_days * passengers, 1)))
+        food_est = round(calibrated_food_daily * trip_days * passengers)
+    else:
+        food_est = round(1200 * trip_days * passengers)
+
+    # D. Activity costs: budget-constrained so total does not exceed user's input budget
+    remaining_for_acts = max(0, user_input_budget - (actual_acc_total + transport_est + food_est))
+    raw_act_total = sum(round(act.get("cost", 0) * passengers) for act in activities)
+
+    if raw_act_total > 0 and remaining_for_acts > 0:
+        if raw_act_total <= remaining_for_acts:
+            actual_act_total = raw_act_total
+        else:
+            # Scale activity fees so total plan fits strictly within user's budget
+            scale_ratio = remaining_for_acts / raw_act_total
+            actual_act_total = round(remaining_for_acts)
+            # Adjust individual activity costs in activity_entries
+            for act in activity_entries:
+                if "cost" in act and act["cost"] > 0:
+                    act["cost"] = round(act["cost"] * scale_ratio)
+    elif raw_act_total > 0 and remaining_for_acts <= 0:
+        # Minimal essential ticket fees
+        actual_act_total = min(raw_act_total, round(trip_days * 1000 * passengers))
+    else:
+        actual_act_total = 0
 
     actual_total = actual_acc_total + actual_act_total + food_est + transport_est
     per_person_est = round(actual_total / passengers)
+
+    # Budget Health Evaluation
+    is_covered = actual_total <= user_input_budget
+    savings_or_buffer = round(user_input_budget - actual_total) if is_covered else 0
+    budget_deficit = round(actual_total - user_input_budget) if not is_covered else 0
 
     passenger_label = f"{passengers} Traveller{'s' if passengers > 1 else ''}"
     plan_data = {
@@ -1363,6 +1489,10 @@ def call_ml_service(city, country, origin, start_date, end_date, interests,
         "passenger_label":           passenger_label,
         "rooms_needed":              rooms_needed,
         "travel_type":               travel_type,
+        "input_budget":              int(user_input_budget),
+        "is_covered":                is_covered,
+        "savings_or_buffer":         savings_or_buffer,
+        "budget_deficit":            budget_deficit,
         "match_percentage":          dest.get("match_percentage", None),
         "recommendation_reason":     dest.get("reason", ""),
         "activities":                activity_entries,
@@ -1373,9 +1503,13 @@ def call_ml_service(city, country, origin, start_date, end_date, interests,
             "accommodation": actual_acc_total,
             "activities":    actual_act_total,
             "food":          food_est,
-            "transport":     transport_est,
-            "total":         actual_total,
+            "transport":      transport_est,
+            "transport_note": transport_note,
+            "total":          actual_total,
             "per_person":    per_person_est,
+            "input_budget":  int(user_input_budget),
+            "is_covered":    is_covered,
+            "savings":       savings_or_buffer,
         },
     }
 
