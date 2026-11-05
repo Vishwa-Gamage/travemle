@@ -1,121 +1,109 @@
 accommodation_id,name,destination_id,destination_name,accommodation_type,price_per_night,rating,review_count,wifi,pool,breakfast,parking,air_conditioning,family_friendly,accessible,luxury_score,budget_score,latitude,longitude
-HOT001,Ella Hotel 1,DEST001,Ella,hotel,8100,3.7,20,False,False,False,False,True,True,False,0.35,0.7,6.8677,81.0476
-HOT002,Kandy Resort 2,DEST002,Kandy,resort,9280,3.8,27,True,True,True,True,False,False,True,0.43,0.78,7.291600000000001,80.63470000000001
-HOT003,Nuwara Eliya Hostel 3,DEST003,Nuwara Eliya,hostel,12070,3.8,34,True,True,True,True,True,True,True,0.52,0.87,6.9507,80.79010000000001
-HOT004,Mirissa Guest House 4,DEST004,Mirissa,guest_house,15960,3.9,41,True,False,True,True,True,True,True,0.6,0.95,5.9493,80.4726
-HOT005,Galle Villa 5,DEST005,Galle,villa,19400,3.9,48,True,True,False,True,True,False,True,0.68,1.03,6.0339,80.21780000000001
-HOT006,Sigiriya Homestay 6,DEST006,Sigiriya,homestay,16500,4.0,55,False,True,True,True,False,True,True,0.77,0.45,7.958,80.7613
-HOT007,Dambulla Hotel 7,DEST007,Dambulla,hotel,15990,4.0,62,True,False,True,False,True,True,True,0.85,0.53,7.8741,80.7728
-HOT008,Anuradhapura Resort 8,DEST008,Anuradhapura,resort,5400,4.0,69,True,True,True,True,True,False,False,0.93,0.62,8.3124,80.4047
-HOT009,Polonnaruwa Hostel 9,DEST009,Polonnaruwa,hostel,6960,4.1,76,True,True,False,True,True,True,True,0.35,0.7,7.9413,81.0198
-HOT010,Trincomalee Guest House 10,DEST010,Trincomalee,guest_house,12070,4.2,83,True,False,True,True,False,True,True,0.43,0.78,8.5884,81.2162
-HOT011,Arugam Bay Villa 11,DEST011,Arugam Bay,villa,13440,4.2,90,False,True,True,True,True,False,True,0.52,0.87,6.841,81.837
-HOT012,Yala Homestay 12,DEST012,Yala,homestay,21340,4.2,97,True,True,True,True,True,True,True,0.6,0.95,6.3738,81.51950000000001
-HOT013,Udawalawe Hotel 13,DEST013,Udawalawe,hotel,19800,4.3,104,True,False,False,False,True,True,True,0.68,1.03,6.476,80.88900000000001
-HOT014,Bentota Resort 14,DEST014,Bentota,resort,25830,4.4,111,True,True,True,True,False,False,True,0.77,0.45,6.422000000000001,80.001
-HOT015,Hikkaduwa Hostel 15,DEST015,Hikkaduwa,hostel,8100,3.7,118,True,True,True,True,True,True,False,0.85,0.53,6.1405,80.1473
-HOT016,Negombo Guest House 16,DEST016,Negombo,guest_house,8700,3.8,125,False,False,True,True,True,True,True,0.93,0.62,7.209300000000001,79.83680000000001
-HOT017,Jaffna Villa 17,DEST017,Jaffna,villa,9230,3.8,132,True,True,False,True,True,False,True,0.35,0.7,9.6625,80.0265
-HOT018,Kalpitiya Homestay 18,DEST018,Kalpitiya,homestay,13440,3.9,139,True,True,True,True,False,True,True,0.43,0.78,8.238,79.759
-HOT019,Haputale Hotel 19,DEST019,Haputale,hotel,13580,3.9,146,True,False,True,False,True,True,True,0.52,0.87,6.7691,80.9608
-HOT020,Knuckles Resort 20,DEST020,Knuckles,resort,16500,4.0,153,True,True,True,True,True,False,True,0.6,0.95,7.501,80.801
-HOT021,Kitulgala Hostel 21,DEST021,Kitulgala,hostel,19065,4.0,160,False,True,False,True,True,True,True,0.68,1.03,6.99,80.418
-HOT022,Sinharaja Guest House 22,DEST022,Sinharaja,guest_house,6750,4.0,167,True,False,True,True,False,True,False,0.77,0.45,6.401000000000001,80.501
-HOT023,Horton Plains Villa 23,DEST023,Horton Plains,villa,9280,4.1,174,True,True,True,True,True,False,True,0.85,0.53,6.803,80.79
-HOT024,Unawatuna Homestay 24,DEST024,Unawatuna,homestay,13490,4.2,181,True,True,True,True,True,True,True,0.93,0.62,6.011,80.251
-HOT025,Pasikuda Hotel 25,DEST025,Pasikuda,hotel,16800,4.2,188,True,False,False,False,True,True,True,0.35,0.7,7.921,81.561
-HOT026,Nilaveli Resort 26,DEST026,Nilaveli,resort,18430,4.2,195,False,True,True,True,False,False,True,0.43,0.78,8.690999999999999,81.191
-HOT027,Sri Lanka Demo 27 Hostel 27,DEST027,Sri Lanka Demo 27,hostel,22153,4.3,202,True,True,True,True,True,True,True,0.52,0.87,6.679618887775228,80.93505518992144
-HOT028,Sri Lanka Demo 28 Guest House 28,DEST028,Sri Lanka Demo 28,guest_house,22479,4.4,209,True,False,True,True,True,True,True,0.6,0.95,6.731563726550756,81.01664575926141
-HOT029,Sri Lanka Demo 29 Villa 29,DEST029,Sri Lanka Demo 29,villa,8595,3.7,216,True,True,False,True,True,False,False,0.68,1.03,6.88219123658188,81.23684630559175
-HOT030,Sri Lanka Demo 30 Homestay 30,DEST030,Sri Lanka Demo 30,homestay,9760,3.8,223,True,True,True,True,False,True,True,0.77,0.45,7.061788608264303,81.18972708840606
-HOT031,Sri Lanka Demo 31 Hotel 31,DEST031,Sri Lanka Demo 31,hotel,12784,3.8,230,False,False,True,False,True,True,True,0.85,0.53,6.921691315278824,81.06125595081188
-HOT032,Sri Lanka Demo 32 Resort 32,DEST032,Sri Lanka Demo 32,resort,15282,3.9,237,True,True,True,True,True,False,True,0.93,0.62,6.680540097561615,80.97378121922364
-HOT033,Sri Lanka Demo 33 Hostel 33,DEST033,Sri Lanka Demo 33,hostel,19803,3.9,244,True,True,False,True,True,True,True,0.35,0.7,6.723552127810203,81.14559559283664
-HOT034,Sri Lanka Demo 34 Guest House 34,DEST034,Sri Lanka Demo 34,guest_house,21404,4.0,251,True,False,True,True,False,True,True,0.43,0.78,6.711559652140264,81.09857841668124
-HOT035,Sri Lanka Demo 35 Villa 35,DEST035,Sri Lanka Demo 35,villa,23107,4.0,258,True,True,True,True,True,False,True,0.52,0.87,7.021615380051644,81.14795111983665
-HOT036,Sri Lanka Demo 36 Homestay 36,DEST036,Sri Lanka Demo 36,homestay,9071,4.0,265,False,True,True,True,True,True,False,0.6,0.95,7.015907427934707,80.96697791657945
-HOT037,Sri Lanka Demo 37 Hotel 37,DEST037,Sri Lanka Demo 37,hotel,10741,4.1,272,True,False,False,False,True,True,True,0.68,1.03,7.0393394465058465,81.19908875112928
-HOT038,Sri Lanka Demo 38 Resort 38,DEST038,Sri Lanka Demo 38,resort,12320,4.2,279,True,True,True,True,False,False,True,0.77,0.45,6.931600329098947,81.226339471882
-HOT039,Sri Lanka Demo 39 Hostel 39,DEST039,Sri Lanka Demo 39,hostel,17001,4.2,286,True,True,True,True,True,True,True,0.85,0.53,6.927651223055782,81.0228400335658
-HOT040,Sri Lanka Demo 40 Guest House 40,DEST040,Sri Lanka Demo 40,guest_house,18145,4.2,293,True,False,True,True,True,True,True,0.93,0.62,6.694660131244123,80.86016518322121
-HOT041,Ella Villa 41,DEST001,Ella,villa,19800,4.3,300,False,True,False,True,True,False,True,0.35,0.7,6.8677,81.0476
-HOT042,Kandy Homestay 42,DEST002,Kandy,homestay,19680,4.4,307,True,True,True,True,False,True,True,0.43,0.78,7.291600000000001,80.63470000000001
-HOT043,Nuwara Eliya Hotel 43,DEST003,Nuwara Eliya,hotel,7650,3.7,314,True,False,True,False,True,True,False,0.52,0.87,6.9507,80.79010000000001
-HOT044,Mirissa Resort 44,DEST004,Mirissa,resort,11020,3.8,321,True,True,True,True,True,False,True,0.6,0.95,5.9493,80.4726
-HOT045,Galle Hostel 45,DEST005,Galle,hostel,14200,3.8,328,True,True,False,True,True,True,True,0.68,1.03,6.0339,80.21780000000001
-HOT046,Sigiriya Guest House 46,DEST006,Sigiriya,guest_house,12600,3.9,335,False,False,True,True,False,True,True,0.77,0.45,7.958,80.7613
-HOT047,Dambulla Villa 47,DEST007,Dambulla,villa,12610,3.9,342,True,True,True,True,True,False,True,0.85,0.53,7.8741,80.7728
-HOT048,Anuradhapura Homestay 48,DEST008,Anuradhapura,homestay,13200,4.0,349,True,True,True,True,True,True,True,0.93,0.62,8.3124,80.4047
-HOT049,Polonnaruwa Hotel 49,DEST009,Polonnaruwa,hotel,14760,4.0,356,True,False,False,False,True,True,True,0.35,0.7,7.9413,81.0198
-HOT050,Trincomalee Resort 50,DEST010,Trincomalee,resort,7650,4.0,363,True,True,True,True,False,False,False,0.43,0.78,8.5884,81.2162
-HOT051,Arugam Bay Hostel 51,DEST011,Arugam Bay,hostel,9280,4.1,370,False,True,True,True,True,True,True,0.52,0.87,6.841,81.837
-HOT052,Yala Guest House 52,DEST012,Yala,guest_house,15620,4.2,377,True,False,True,True,True,True,True,0.6,0.95,6.3738,81.51950000000001
-HOT053,Udawalawe Villa 53,DEST013,Udawalawe,villa,15120,4.2,384,True,True,False,True,True,False,True,0.68,1.03,6.476,80.88900000000001
-HOT054,Bentota Homestay 54,DEST014,Bentota,homestay,20370,4.2,391,True,True,True,True,False,True,True,0.77,0.45,6.422000000000001,80.001
-HOT055,Hikkaduwa Hotel 55,DEST015,Hikkaduwa,hotel,19800,4.3,398,True,False,True,False,True,True,True,0.85,0.53,6.1405,80.1473
-HOT056,Negombo Resort 56,DEST016,Negombo,resort,18450,4.4,405,False,True,True,True,True,False,True,0.93,0.62,7.209300000000001,79.83680000000001
-HOT057,Jaffna Hostel 57,DEST017,Jaffna,hostel,5850,3.7,412,True,True,False,True,True,True,False,0.35,0.7,9.6625,80.0265
-HOT058,Kalpitiya Guest House 58,DEST018,Kalpitiya,guest_house,9280,3.8,419,True,False,True,True,False,True,True,0.43,0.78,8.238,79.759
-HOT059,Haputale Villa 59,DEST019,Haputale,villa,9940,3.8,426,True,True,True,True,True,False,True,0.52,0.87,6.7691,80.9608
-HOT060,Knuckles Homestay 60,DEST020,Knuckles,homestay,12600,3.9,433,True,True,True,True,True,True,True,0.6,0.95,7.501,80.801
-HOT061,Kitulgala Hotel 61,DEST021,Kitulgala,hotel,15035,3.9,440,False,False,False,False,True,True,True,0.68,1.03,6.99,80.418
-HOT062,Sinharaja Resort 62,DEST022,Sinharaja,resort,16500,4.0,447,True,True,True,True,False,False,True,0.77,0.45,6.401000000000001,80.501
-HOT063,Horton Plains Hostel 63,DEST023,Horton Plains,hostel,19680,4.0,454,True,True,True,True,True,True,True,0.85,0.53,6.803,80.79
-HOT064,Unawatuna Guest House 64,DEST024,Unawatuna,guest_house,8550,4.0,461,True,False,True,True,True,True,False,0.93,0.62,6.011,80.251
-HOT065,Pasikuda Villa 65,DEST025,Pasikuda,villa,11600,4.1,468,True,True,False,True,True,False,True,0.35,0.7,7.921,81.561
-HOT066,Nilaveli Homestay 66,DEST026,Nilaveli,homestay,13490,4.2,475,False,True,True,True,False,True,True,0.43,0.78,8.690999999999999,81.191
-HOT067,Sri Lanka Demo 27 Hotel 67,DEST027,Sri Lanka Demo 27,hotel,16917,4.2,482,True,False,True,False,True,True,True,0.52,0.87,6.679618887775228,80.93505518992144
-HOT068,Sri Lanka Demo 28 Resort 68,DEST028,Sri Lanka Demo 28,resort,17728,4.2,489,True,True,True,True,True,False,True,0.6,0.95,6.731563726550756,81.01664575926141
-HOT069,Sri Lanka Demo 29 Hostel 69,DEST029,Sri Lanka Demo 29,hostel,21010,4.3,496,True,True,False,True,True,True,True,0.68,1.03,6.88219123658188,81.23684630559175
-HOT070,Sri Lanka Demo 30 Guest House 70,DEST030,Sri Lanka Demo 30,guest_house,20697,4.4,503,True,False,True,True,False,True,True,0.77,0.45,7.061788608264303,81.18972708840606
-HOT071,Sri Lanka Demo 31 Villa 71,DEST031,Sri Lanka Demo 31,villa,8102,3.7,510,False,True,True,True,True,False,False,0.85,0.53,6.921691315278824,81.06125595081188
-HOT072,Sri Lanka Demo 32 Homestay 72,DEST032,Sri Lanka Demo 32,homestay,10552,3.8,517,True,True,True,True,True,True,True,0.93,0.62,6.680540097561615,80.97378121922364
-HOT073,Sri Lanka Demo 33 Hotel 73,DEST033,Sri Lanka Demo 33,hotel,14495,3.8,524,True,False,False,False,True,True,True,0.35,0.7,6.723552127810203,81.14559559283664
-HOT074,Sri Lanka Demo 34 Resort 74,DEST034,Sri Lanka Demo 34,resort,16345,3.9,531,True,True,True,True,False,False,True,0.43,0.78,6.711559652140264,81.09857841668124
-HOT075,Sri Lanka Demo 35 Hostel 75,DEST035,Sri Lanka Demo 35,hostel,18222,3.9,538,True,True,True,True,True,True,True,0.52,0.87,7.021615380051644,81.14795111983665
-HOT076,Sri Lanka Demo 36 Guest House 76,DEST036,Sri Lanka Demo 36,guest_house,22174,4.0,545,False,False,True,True,True,True,True,0.6,0.95,7.015907427934707,80.96697791657945
-HOT077,Sri Lanka Demo 37 Villa 77,DEST037,Sri Lanka Demo 37,villa,22778,4.0,552,True,True,False,True,True,False,True,0.68,1.03,7.0393394465058465,81.19908875112928
-HOT078,Sri Lanka Demo 38 Homestay 78,DEST038,Sri Lanka Demo 38,homestay,7808,4.0,559,True,True,True,True,False,True,False,0.77,0.45,6.931600329098947,81.226339471882
-HOT079,Sri Lanka Demo 39 Hotel 79,DEST039,Sri Lanka Demo 39,hotel,11739,4.1,566,True,False,True,False,True,True,True,0.85,0.53,6.927651223055782,81.0228400335658
-HOT080,Sri Lanka Demo 40 Resort 80,DEST040,Sri Lanka Demo 40,resort,13281,4.2,573,True,True,True,True,True,False,True,0.93,0.62,6.694660131244123,80.86016518322121
-HOT081,Ella Hostel 81,DEST001,Ella,hostel,15120,4.2,580,False,True,False,True,True,True,True,0.35,0.7,6.8677,81.0476
-HOT082,Kandy Guest House 82,DEST002,Kandy,guest_house,15520,4.2,587,True,False,True,True,False,True,True,0.43,0.78,7.291600000000001,80.63470000000001
-HOT083,Nuwara Eliya Villa 83,DEST003,Nuwara Eliya,villa,18700,4.3,594,True,True,True,True,True,False,True,0.52,0.87,6.9507,80.79010000000001
-HOT084,Mirissa Homestay 84,DEST004,Mirissa,homestay,23370,4.4,601,True,True,True,True,True,True,True,0.6,0.95,5.9493,80.4726
-HOT085,Galle Hotel 85,DEST005,Galle,hotel,9000,3.7,608,True,False,False,False,True,True,False,0.68,1.03,6.0339,80.21780000000001
-HOT086,Sigiriya Resort 86,DEST006,Sigiriya,resort,8700,3.8,615,False,True,True,True,False,False,True,0.77,0.45,7.958,80.7613
-HOT087,Dambulla Hostel 87,DEST007,Dambulla,hostel,9230,3.8,622,True,True,True,True,True,True,True,0.85,0.53,7.8741,80.7728
-HOT088,Anuradhapura Guest House 88,DEST008,Anuradhapura,guest_house,10080,3.9,629,True,False,True,True,True,True,True,0.93,0.62,8.3124,80.4047
-HOT089,Polonnaruwa Villa 89,DEST009,Polonnaruwa,villa,11640,3.9,636,True,True,False,True,True,False,True,0.35,0.7,7.9413,81.0198
-HOT090,Trincomalee Homestay 90,DEST010,Trincomalee,homestay,18700,4.0,643,True,True,True,True,False,True,True,0.43,0.78,8.5884,81.2162
-HOT091,Arugam Bay Hotel 91,DEST011,Arugam Bay,hotel,19680,4.0,650,False,False,True,False,True,True,True,0.52,0.87,6.841,81.837
-HOT092,Yala Resort 92,DEST012,Yala,resort,9900,4.0,657,True,True,True,True,True,False,False,0.6,0.95,6.3738,81.51950000000001
-HOT093,Udawalawe Hostel 93,DEST013,Udawalawe,hostel,10440,4.1,664,True,True,False,True,True,True,True,0.68,1.03,6.476,80.88900000000001
-HOT094,Bentota Guest House 94,DEST014,Bentota,guest_house,14910,4.2,671,True,False,True,True,False,True,True,0.77,0.45,6.422000000000001,80.001
-HOT095,Hikkaduwa Villa 95,DEST015,Hikkaduwa,villa,15120,4.2,678,True,True,True,True,True,False,True,0.85,0.53,6.1405,80.1473
-HOT096,Negombo Homestay 96,DEST016,Negombo,homestay,14550,4.2,685,False,True,True,True,True,True,True,0.93,0.62,7.209300000000001,79.83680000000001
-HOT097,Jaffna Hotel 97,DEST017,Jaffna,hotel,14300,4.3,692,True,False,False,False,True,True,True,0.35,0.7,9.6625,80.0265
-HOT098,Kalpitiya Resort 98,DEST018,Kalpitiya,resort,19680,4.4,699,True,True,True,True,False,False,True,0.43,0.78,8.238,79.759
-HOT099,Haputale Hostel 99,DEST019,Haputale,hostel,6300,3.7,706,True,True,True,True,True,True,False,0.52,0.87,6.7691,80.9608
-HOT100,Knuckles Guest House 100,DEST020,Knuckles,guest_house,8700,3.8,713,True,False,True,True,True,True,True,0.6,0.95,7.501,80.801
-HOT101,Kitulgala Villa 101,DEST021,Kitulgala,villa,11005,3.8,720,False,True,False,True,True,False,True,0.68,1.03,6.99,80.418
-HOT102,Sinharaja Homestay 102,DEST022,Sinharaja,homestay,12600,3.9,727,True,True,True,True,False,True,True,0.77,0.45,6.401000000000001,80.501
-HOT103,Horton Plains Hotel 103,DEST023,Horton Plains,hotel,15520,3.9,734,True,False,True,False,True,True,True,0.85,0.53,6.803,80.79
-HOT104,Unawatuna Resort 104,DEST024,Unawatuna,resort,20900,4.0,741,True,True,True,True,True,False,True,0.93,0.62,6.011,80.251
-HOT105,Pasikuda Hostel 105,DEST025,Pasikuda,hostel,24600,4.0,748,True,True,False,True,True,True,True,0.35,0.7,7.921,81.561
-HOT106,Nilaveli Guest House 106,DEST026,Nilaveli,guest_house,8550,4.0,755,False,False,True,True,False,True,False,0.43,0.78,8.690999999999999,81.191
-HOT107,Sri Lanka Demo 27 Villa 107,DEST027,Sri Lanka Demo 27,villa,11681,4.1,762,True,True,True,True,True,False,True,0.52,0.87,6.679618887775228,80.93505518992144
-HOT108,Sri Lanka Demo 28 Homestay 108,DEST028,Sri Lanka Demo 28,homestay,12976,4.2,769,True,True,True,True,True,True,True,0.6,0.95,6.731563726550756,81.01664575926141
-HOT109,Sri Lanka Demo 29 Hotel 109,DEST029,Sri Lanka Demo 29,hotel,16044,4.2,776,True,False,False,False,True,True,True,0.68,1.03,6.88219123658188,81.23684630559175
-HOT110,Sri Lanka Demo 30 Resort 110,DEST030,Sri Lanka Demo 30,resort,16322,4.2,783,True,True,True,True,False,False,True,0.77,0.45,7.061788608264303,81.18972708840606
-HOT111,Sri Lanka Demo 31 Hostel 111,DEST031,Sri Lanka Demo 31,hostel,19806,4.3,790,False,True,True,True,True,True,True,0.85,0.53,6.921691315278824,81.06125595081188
-HOT112,Sri Lanka Demo 32 Guest House 112,DEST032,Sri Lanka Demo 32,guest_house,22377,4.4,797,True,False,True,True,True,True,True,0.93,0.62,6.680540097561615,80.97378121922364
-HOT113,Sri Lanka Demo 33 Villa 113,DEST033,Sri Lanka Demo 33,villa,9187,3.7,804,True,True,False,True,True,False,False,0.35,0.7,6.723552127810203,81.14559559283664
-HOT114,Sri Lanka Demo 34 Homestay 114,DEST034,Sri Lanka Demo 34,homestay,11286,3.8,811,True,True,True,True,False,True,True,0.43,0.78,6.711559652140264,81.09857841668124
-HOT115,Sri Lanka Demo 35 Hotel 115,DEST035,Sri Lanka Demo 35,hotel,13338,3.8,818,True,False,True,False,True,True,True,0.52,0.87,7.021615380051644,81.14795111983665
-HOT116,Sri Lanka Demo 36 Resort 116,DEST036,Sri Lanka Demo 36,resort,16933,3.9,825,False,True,True,True,True,False,True,0.6,0.95,7.015907427934707,80.96697791657945
-HOT117,Sri Lanka Demo 37 Hostel 117,DEST037,Sri Lanka Demo 37,hostel,17963,3.9,832,True,True,False,True,True,True,True,0.68,1.03,7.0393394465058465,81.19908875112928
-HOT118,Sri Lanka Demo 38 Guest House 118,DEST038,Sri Lanka Demo 38,guest_house,19087,4.0,839,True,False,True,True,False,True,True,0.77,0.45,6.931600329098947,81.226339471882
-HOT119,Sri Lanka Demo 39 Villa 119,DEST039,Sri Lanka Demo 39,villa,24894,4.0,846,True,True,True,True,True,False,True,0.85,0.53,6.927651223055782,81.0228400335658
-HOT120,Sri Lanka Demo 40 Homestay 120,DEST040,Sri Lanka Demo 40,homestay,8418,4.0,853,True,True,True,True,True,True,False,0.93,0.62,6.694660131244123,80.86016518322121
+HOT001,Kandy City Stay,DEST002,Kandy,hotel,6500,4.1,92,True,False,True,False,True,True,True,0.35,0.9,7.2856000000000005,80.6337
+HOT002,Olde Empire Hotel,DEST002,Kandy,guest_house,5000,4.0,99,True,False,False,False,False,True,False,0.25,0.95,7.2906,80.6387
+HOT003,Hotel Suisse Kandy,DEST002,Kandy,hotel,14500,4.3,106,True,True,True,True,True,True,True,0.65,0.6,7.2956,80.62870000000001
+HOT004,Thilanka Hotel,DEST002,Kandy,hotel,16000,4.2,113,True,True,True,True,True,True,True,0.7,0.55,7.3006,80.6337
+HOT005,The Grand Kandyan Hotel,DEST002,Kandy,resort,32000,4.7,120,True,True,True,True,True,True,True,0.95,0.3,7.280600000000001,80.6387
+HOT006,Earl's Regency Hotel,DEST002,Kandy,resort,28500,4.6,127,True,True,True,True,True,True,True,0.9,0.35,7.2856000000000005,80.62870000000001
+HOT007,Ella Mount View Guest Inn,DEST001,Ella,guest_house,5500,4.2,134,True,False,True,True,False,True,False,0.3,0.92,6.8667,81.0466
+HOT008,Hangover Hostels Ella,DEST001,Ella,hostel,4000,4.3,141,True,False,False,False,True,False,True,0.2,0.98,6.8717,81.0516
+HOT009,Oak Ray Ella Gap Hotel,DEST001,Ella,hotel,13500,4.2,148,True,True,True,True,True,True,True,0.62,0.65,6.8767,81.0416
+HOT010,Morning Dew Hotel Ella,DEST001,Ella,hotel,12000,4.3,155,True,False,True,True,True,True,True,0.58,0.7,6.8567,81.0466
+HOT011,98 Acres Resort & Spa,DEST001,Ella,resort,45000,4.9,162,True,True,True,True,True,True,True,0.98,0.2,6.8617,81.0516
+HOT012,EKHO Ella,DEST001,Ella,resort,26000,4.5,169,True,False,True,True,True,True,True,0.85,0.4,6.8667,81.0416
+HOT013,Single Tree Hotel,DEST003,Nuwara Eliya,hotel,6000,4.0,176,True,False,True,True,False,True,False,0.3,0.9,6.9547,80.7891
+HOT014,Hi Lanka Hostel Nuwara Eliya,DEST003,Nuwara Eliya,hostel,4200,4.2,183,True,False,False,False,False,False,False,0.2,0.95,6.9597,80.7941
+HOT015,Araliya Green Hills,DEST003,Nuwara Eliya,hotel,18000,4.3,190,True,True,True,True,True,True,True,0.75,0.5,6.9397,80.78410000000001
+HOT016,Jetwing St. Andrew's,DEST003,Nuwara Eliya,hotel,21000,4.4,197,True,False,True,True,False,True,True,0.82,0.45,6.9447,80.7891
+HOT017,The Grand Hotel Nuwara Eliya,DEST003,Nuwara Eliya,resort,38000,4.8,204,True,False,True,True,True,True,True,0.96,0.25,6.9497,80.7941
+HOT018,Heritance Tea Factory,DEST003,Nuwara Eliya,resort,46000,4.9,211,True,False,True,True,True,True,True,0.98,0.2,6.9547,80.78410000000001
+HOT019,Pedlar's Inn Hostel Galle Fort,DEST005,Galle,hostel,4800,4.2,218,True,False,False,False,True,False,False,0.25,0.94,6.0428999999999995,80.2168
+HOT020,Fortress Guest House,DEST005,Galle,guest_house,6000,4.0,225,True,False,True,False,True,True,False,0.32,0.88,6.0229,80.2218
+HOT021,Tamarind Hill Galle,DEST005,Galle,villa,17500,4.4,232,True,True,True,True,True,True,True,0.78,0.52,6.0279,80.21180000000001
+HOT022,The Fort Printers,DEST005,Galle,hotel,19000,4.3,89,True,True,True,False,True,True,True,0.8,0.48,6.0329,80.2168
+HOT023,Jetwing Lighthouse,DEST005,Galle,resort,42000,4.8,96,True,True,True,True,True,True,True,0.97,0.22,6.0379,80.2218
+HOT024,Amangalla,DEST005,Galle,resort,65000,4.9,103,True,True,True,True,True,True,True,1.0,0.15,6.0428999999999995,80.21180000000001
+HOT025,Sigiriya Village Homestay,DEST006,Sigiriya,homestay,5000,4.3,110,True,False,True,True,False,True,False,0.25,0.95,7.947,80.7603
+HOT026,Kassapa Lions Rock Stay,DEST006,Sigiriya,hotel,7500,4.1,117,True,True,True,True,True,True,True,0.4,0.85,7.952,80.7653
+HOT027,Hotel Sigiriya,DEST006,Sigiriya,hotel,16000,4.4,124,True,True,True,True,True,True,True,0.72,0.58,7.957,80.7553
+HOT028,Aliya Resort & Spa,DEST006,Sigiriya,resort,22000,4.5,131,True,True,True,True,True,True,True,0.85,0.42,7.962,80.7603
+HOT029,Water Garden Sigiriya,DEST006,Sigiriya,resort,52000,4.9,138,True,True,True,True,True,True,True,0.99,0.18,7.967,80.7653
+HOT030,Cinnamon Lodge Habarana,DEST006,Sigiriya,resort,31000,4.6,145,True,True,True,True,True,True,True,0.9,0.32,7.947,80.7553
+HOT031,Mirissa Beach Hostels,DEST004,Mirissa,hostel,4500,4.1,152,True,False,False,False,True,False,False,0.22,0.95,5.9433,80.4716
+HOT032,Sunstyle Mirissa Guesthouse,DEST004,Mirissa,guest_house,6000,4.2,159,True,False,True,True,False,True,False,0.3,0.9,5.9483,80.47659999999999
+HOT033,Paradise Beach Club Mirissa,DEST004,Mirissa,hotel,16000,4.3,166,True,True,True,True,True,True,True,0.7,0.55,5.9533,80.4666
+HOT034,Triple O Six Mirissa,DEST004,Mirissa,hotel,18500,4.4,173,True,True,True,True,True,True,True,0.78,0.5,5.9582999999999995,80.4716
+HOT035,Mandara Resort Mirissa,DEST004,Mirissa,resort,32000,4.6,180,True,True,True,True,True,True,True,0.92,0.3,5.9383,80.47659999999999
+HOT036,Sri Sharavi Beach Villas & Spa,DEST004,Mirissa,villa,45000,4.8,187,True,True,True,True,True,True,True,0.98,0.2,5.9433,80.4666
+HOT037,Bentota River View Inn,DEST014,Bentota,guest_house,5500,4.0,194,True,False,True,True,False,True,False,0.28,0.92,6.421,80.0
+HOT038,Lanka Princess Budget Stay,DEST014,Bentota,hotel,7500,4.1,201,True,False,True,True,True,True,True,0.38,0.85,6.426,80.005
+HOT039,Centara Ceysands Resort & Spa,DEST014,Bentota,resort,19000,4.4,208,True,True,True,True,True,True,True,0.8,0.48,6.431,79.995
+HOT040,Ekho Surf Bentota,DEST014,Bentota,hotel,17000,4.3,215,True,True,True,True,True,True,True,0.74,0.52,6.4110000000000005,80.0
+HOT041,Taj Bentota Resort & Spa,DEST014,Bentota,resort,36000,4.7,222,True,True,True,True,True,True,True,0.95,0.28,6.416,80.005
+HOT042,Cinnamon Bentota Beach,DEST014,Bentota,resort,42000,4.8,229,True,True,True,True,True,True,True,0.97,0.22,6.421,79.995
+HOT043,Yala Safari Camping Inn,DEST012,Yala,guest_house,6500,4.1,86,True,False,True,True,False,True,False,0.3,0.88,6.3778,81.5185
+HOT044,Tissamaharama Rest House,DEST012,Yala,hotel,8000,4.0,93,True,False,True,True,True,True,True,0.4,0.82,6.3828,81.5235
+HOT045,Jetwing Yala,DEST012,Yala,hotel,24000,4.5,100,True,True,True,True,True,True,True,0.88,0.38,6.3628,81.51350000000001
+HOT046,Cinnamon Wild Yala,DEST012,Yala,resort,26000,4.6,107,True,True,True,True,True,True,True,0.9,0.35,6.3678,81.5185
+HOT047,Wild Coast Tented Lodge,DEST012,Yala,resort,85000,4.9,114,True,True,True,True,True,True,True,1.0,0.1,6.3728,81.5235
+HOT048,Uga Chena Huts Yala,DEST012,Yala,resort,78000,4.9,121,True,True,True,True,True,True,True,0.99,0.12,6.3778,81.51350000000001
+HOT049,Uppuveli Beach Guest House,DEST010,Trincomalee,guest_house,5500,4.1,128,True,False,False,True,False,True,False,0.28,0.92,8.5974,81.2152
+HOT050,French Garden Resort Trinco,DEST010,Trincomalee,hotel,7000,4.0,135,True,False,True,True,True,True,True,0.36,0.86,8.5774,81.22019999999999
+HOT051,Trinco Blu by Cinnamon,DEST010,Trincomalee,resort,18000,4.4,142,True,True,True,True,True,True,True,0.78,0.52,8.5824,81.2102
+HOT052,Anantamaa Resort,DEST010,Trincomalee,hotel,15000,4.2,149,True,True,True,True,True,True,True,0.68,0.6,8.5874,81.2152
+HOT053,Jungle Beach by Uga Escapes,DEST010,Trincomalee,resort,48000,4.8,156,True,True,True,True,True,True,True,0.98,0.2,8.592400000000001,81.22019999999999
+HOT054,Nilaveli Beach Hotel,DEST010,Trincomalee,resort,26000,4.5,163,True,True,True,True,True,True,True,0.88,0.35,8.5974,81.2102
+HOT055,Dambulla City Hotel,DEST007,Dambulla,hotel,6000,4.0,170,True,False,True,True,True,True,True,0.3,0.9,7.8631,80.7718
+HOT056,Sundaras Resort & Spa Dambulla,DEST007,Dambulla,hotel,14000,4.3,177,True,True,True,True,True,True,True,0.68,0.6,7.8681,80.7768
+HOT057,Heritance Kandalama,DEST007,Dambulla,resort,38000,4.8,184,True,True,True,True,True,True,True,0.96,0.25,7.8731,80.7668
+HOT058,Milano Tourist Rest,DEST008,Anuradhapura,guest_house,5000,4.1,191,True,False,True,True,True,True,True,0.28,0.92,8.316400000000002,80.4037
+HOT059,The Heritage Hotel Anuradhapura,DEST008,Anuradhapura,hotel,14000,4.3,198,True,True,True,True,True,True,True,0.68,0.6,8.3214,80.4087
+HOT060,Ulagalla by Uga Escapes,DEST008,Anuradhapura,resort,58000,4.9,205,True,True,True,True,True,True,True,1.0,0.15,8.301400000000001,80.3987
+HOT061,Pharo Lake Hotel,DEST009,Polonnaruwa,hotel,6500,4.0,212,True,False,True,True,True,True,True,0.32,0.88,7.9353,81.0188
+HOT062,The Lake Hotel Polonnaruwa,DEST009,Polonnaruwa,hotel,15000,4.3,219,True,True,True,True,True,True,True,0.7,0.58,7.9403,81.0238
+HOT063,Ekho Lake House Polonnaruwa,DEST009,Polonnaruwa,resort,28000,4.6,226,True,True,True,True,True,True,True,0.9,0.35,7.9453,81.0138
+HOT064,The Long Hostel Arugam Bay,DEST011,Arugam Bay,hostel,4000,4.2,233,True,False,False,False,True,False,False,0.2,0.96,6.85,81.836
+HOT065,Bay Vista Hotel,DEST011,Arugam Bay,hotel,16000,4.4,90,True,False,True,True,True,True,True,0.7,0.55,6.83,81.841
+HOT066,Kottukal Beach House by Jetwing,DEST011,Arugam Bay,villa,42000,4.8,97,True,True,True,True,True,True,True,0.97,0.22,6.835,81.831
+HOT067,Regal Réseau Hotel & Spa,DEST016,Negombo,hotel,12000,4.2,104,True,True,True,True,True,True,True,0.65,0.65,7.2083,79.8358
+HOT068,Heritance Negombo,DEST016,Negombo,resort,32000,4.6,111,True,True,True,True,True,True,True,0.92,0.3,7.2133,79.8408
+HOT069,Jetwing Blue,DEST016,Negombo,resort,28000,4.5,118,True,True,True,True,True,True,True,0.9,0.35,7.2183,79.83080000000001
+HOT070,Udawalawe Guest Inn,DEST013,Udawalawe,guest_house,6000,4.0,255,True,False,True,True,False,True,True,0.35,0.9,6.475,80.888
+HOT071,Udawalawe Heritage Hotel,DEST013,Udawalawe,hotel,14000,4.3,258,True,False,True,True,True,True,True,0.6,0.65,6.475,80.888
+HOT072,Udawalawe Sanctuary Resort,DEST013,Udawalawe,resort,28000,4.6,261,True,True,True,True,True,True,True,0.85,0.35,6.475,80.888
+HOT073,Hikkaduwa Guest Inn,DEST015,Hikkaduwa,guest_house,6000,4.0,264,True,False,True,True,False,True,True,0.35,0.9,6.1395,80.1463
+HOT074,Hikkaduwa Heritage Hotel,DEST015,Hikkaduwa,hotel,14000,4.3,267,True,False,True,True,True,True,True,0.6,0.65,6.1395,80.1463
+HOT075,Hikkaduwa Sanctuary Resort,DEST015,Hikkaduwa,resort,28000,4.6,270,True,True,True,True,True,True,True,0.85,0.35,6.1395,80.1463
+HOT076,Jaffna Guest Inn,DEST017,Jaffna,guest_house,6000,4.0,273,True,False,True,True,False,True,True,0.35,0.9,9.6615,80.0255
+HOT077,Jaffna Heritage Hotel,DEST017,Jaffna,hotel,14000,4.3,276,True,False,True,True,True,True,True,0.6,0.65,9.6615,80.0255
+HOT078,Jaffna Sanctuary Resort,DEST017,Jaffna,resort,28000,4.6,279,True,True,True,True,True,True,True,0.85,0.35,9.6615,80.0255
+HOT079,Kalpitiya Guest Inn,DEST018,Kalpitiya,guest_house,6000,4.0,282,True,False,True,True,False,True,True,0.35,0.9,8.237,79.758
+HOT080,Kalpitiya Heritage Hotel,DEST018,Kalpitiya,hotel,14000,4.3,285,True,False,True,True,True,True,True,0.6,0.65,8.237,79.758
+HOT081,Kalpitiya Sanctuary Resort,DEST018,Kalpitiya,resort,28000,4.6,288,True,True,True,True,True,True,True,0.85,0.35,8.237,79.758
+HOT082,Haputale Guest Inn,DEST019,Haputale,guest_house,6000,4.0,291,True,False,True,True,False,True,True,0.35,0.9,6.7681,80.9598
+HOT083,Haputale Heritage Hotel,DEST019,Haputale,hotel,14000,4.3,294,True,False,True,True,True,True,True,0.6,0.65,6.7681,80.9598
+HOT084,Haputale Sanctuary Resort,DEST019,Haputale,resort,28000,4.6,297,True,True,True,True,True,True,True,0.85,0.35,6.7681,80.9598
+HOT085,Knuckles Guest Inn,DEST020,Knuckles,guest_house,6000,4.0,300,True,False,True,True,False,True,True,0.35,0.9,7.5,80.8
+HOT086,Knuckles Heritage Hotel,DEST020,Knuckles,hotel,14000,4.3,303,True,False,True,True,True,True,True,0.6,0.65,7.5,80.8
+HOT087,Knuckles Sanctuary Resort,DEST020,Knuckles,resort,28000,4.6,306,True,True,True,True,True,True,True,0.85,0.35,7.5,80.8
+HOT088,Kitulgala Guest Inn,DEST021,Kitulgala,guest_house,6000,4.0,309,True,False,True,True,False,True,True,0.35,0.9,6.989,80.417
+HOT089,Kitulgala Heritage Hotel,DEST021,Kitulgala,hotel,14000,4.3,312,True,False,True,True,True,True,True,0.6,0.65,6.989,80.417
+HOT090,Kitulgala Sanctuary Resort,DEST021,Kitulgala,resort,28000,4.6,315,True,True,True,True,True,True,True,0.85,0.35,6.989,80.417
+HOT091,Sinharaja Guest Inn,DEST022,Sinharaja,guest_house,6000,4.0,318,True,False,True,True,False,True,True,0.35,0.9,6.4,80.5
+HOT092,Sinharaja Heritage Hotel,DEST022,Sinharaja,hotel,14000,4.3,321,True,False,True,True,True,True,True,0.6,0.65,6.4,80.5
+HOT093,Sinharaja Sanctuary Resort,DEST022,Sinharaja,resort,28000,4.6,324,True,True,True,True,True,True,True,0.85,0.35,6.4,80.5
+HOT094,Horton Plains Guest Inn,DEST023,Horton Plains,guest_house,6000,4.0,327,True,False,True,True,False,True,True,0.35,0.9,6.802,80.789
+HOT095,Horton Plains Heritage Hotel,DEST023,Horton Plains,hotel,14000,4.3,330,True,False,True,True,True,True,True,0.6,0.65,6.802,80.789
+HOT096,Horton Plains Sanctuary Resort,DEST023,Horton Plains,resort,28000,4.6,333,True,True,True,True,True,True,True,0.85,0.35,6.802,80.789
+HOT097,Unawatuna Guest Inn,DEST024,Unawatuna,guest_house,6000,4.0,336,True,False,True,True,False,True,True,0.35,0.9,6.01,80.25
+HOT098,Unawatuna Heritage Hotel,DEST024,Unawatuna,hotel,14000,4.3,339,True,False,True,True,True,True,True,0.6,0.65,6.01,80.25
+HOT099,Unawatuna Sanctuary Resort,DEST024,Unawatuna,resort,28000,4.6,342,True,True,True,True,True,True,True,0.85,0.35,6.01,80.25
+HOT100,Pasikuda Guest Inn,DEST025,Pasikuda,guest_house,6000,4.0,345,True,False,True,True,False,True,True,0.35,0.9,7.92,81.56
+HOT101,Pasikuda Heritage Hotel,DEST025,Pasikuda,hotel,14000,4.3,348,True,False,True,True,True,True,True,0.6,0.65,7.92,81.56
+HOT102,Pasikuda Sanctuary Resort,DEST025,Pasikuda,resort,28000,4.6,351,True,True,True,True,True,True,True,0.85,0.35,7.92,81.56
+HOT103,Nilaveli Guest Inn,DEST026,Nilaveli,guest_house,6000,4.0,354,True,False,True,True,False,True,True,0.35,0.9,8.69,81.19
+HOT104,Nilaveli Heritage Hotel,DEST026,Nilaveli,hotel,14000,4.3,357,True,False,True,True,True,True,True,0.6,0.65,8.69,81.19
+HOT105,Nilaveli Sanctuary Resort,DEST026,Nilaveli,resort,28000,4.6,360,True,True,True,True,True,True,True,0.85,0.35,8.69,81.19
+HOT106,Colombo Guest Inn,DEST000,Colombo,guest_house,6000,4.0,363,True,False,True,True,False,True,True,0.35,0.9,6.9271,79.8612
+HOT107,Colombo Heritage Hotel,DEST000,Colombo,hotel,14000,4.3,366,True,False,True,True,True,True,True,0.6,0.65,6.9271,79.8612
+HOT108,Colombo Sanctuary Resort,DEST000,Colombo,resort,28000,4.6,369,True,True,True,True,True,True,True,0.85,0.35,6.9271,79.8612
